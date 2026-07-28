@@ -26,21 +26,14 @@ INCLUDES = "-I include"
 AS_FLAGS = f"-EB -march=vr4300 -mtune=vr4300 -G 0 {INCLUDES}"
 
 
-def clean(version=None):
-    if version:
-        shutil.rmtree(f"asm/{version}", ignore_errors=True)
-        shutil.rmtree(f"assets/{version}", ignore_errors=True)
-        for f in Path("build").glob(f"*.{version}.*"):
-            f.unlink()
-        Path(f"build.ninja.{version}").unlink(missing_ok=True)
-    else:
-        shutil.rmtree("asm", ignore_errors=True)
-        shutil.rmtree("assets", ignore_errors=True)
-        shutil.rmtree("build", ignore_errors=True)
-        for f in Path(".").glob("build.ninja.*"):
-            f.unlink()
-        if Path(".splache").exists():
-            Path(".splache").unlink()
+def clean():
+    shutil.rmtree("asm", ignore_errors=True)
+    shutil.rmtree("assets", ignore_errors=True)
+    shutil.rmtree("build", ignore_errors=True)
+    for f in Path(".").glob("build.ninja.*"):
+        f.unlink()
+    if Path(".splache").exists():
+        Path(".splache").unlink()
 
 
 def create_build_script(linker_entries: list[LinkerEntry], version: str):
@@ -62,7 +55,7 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
     ninja.rule(
         "ld",
         description="link $out",
-        command=f"{CROSS_LD} -T ver/{version}/undefined_syms.txt -T undefined_syms_auto.txt -Map $mapfile -T $in -o $out",
+        command=f"{CROSS_LD} -T ver/{version}/undefined_syms.txt -Map $mapfile -T $in -o $out",
     )
     ninja.rule(
         "z64",
@@ -129,7 +122,7 @@ if __name__ == "__main__":
     version = args.version
 
     if args.clean:
-        clean(version)
+        clean()
 
     baserom = Path(f"ver/{version}/baserom.z64")
     yaml_file = Path(f"ver/{version}/{BASENAME}.yaml")

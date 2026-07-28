@@ -5,6 +5,6 @@
 *.z64
 .splache
 .ninja_log
-*.ninja_log
+build.ninja
 *.d
 *.ld

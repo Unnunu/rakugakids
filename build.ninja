@@ -5,7 +5,7 @@ rule bin
   command = mips-linux-gnu-ld -r -b binary $in -o $out
   description = bin $in
 rule ld
-  command = mips-linux-gnu-ld -T ver/jp/undefined_syms.txt -T undefined_syms_auto.txt -Map $mapfile -T $in -o $out
+  command = mips-linux-gnu-ld -T ver/jp/undefined_syms.txt -Map $mapfile -T $in -o $out
   description = link $out
 rule z64
   command = mips-linux-gnu-objcopy $in $out -O binary
