@@ -1,0 +1,10 @@
+/build/
+/asm/
+/assets/
+
+*.z64
+.splache
+.ninja_log
+*.ninja_log
+*.d
+*.ld

@@ -1,0 +1,198 @@
+name: Rakugakids (Japanese)
+sha1: 43596236cc1a4a4b671d0586fb42518a009427a5
+options:
+  basename: rakugakids
+  target_path: ver/jp/baserom.z64
+  elf_path: build/rakugakids.elf
+  base_path: ../../
+  platform: n64
+  compiler: IDO
+
+  # asm_path: asm
+  # src_path: src
+  # build_path: build
+  # create_asm_dependencies: True
+
+  ld_script_path: rakugakids.jp.ld
+  ld_dependencies: True
+
+  find_file_boundaries: True
+  header_encoding: ASCII
+
+  o_as_suffix: True
+  use_legacy_include_asm: False
+  mips_abi_float_regs: o32
+
+  # section_order: [".text", ".data", ".rodata", ".bss"]
+  # auto_link_sections: [".data", ".rodata", ".bss"]
+
+  symbol_addrs_path:
+    - symbol_addrs.txt
+  reloc_addrs_path:
+    - reloc_addrs.txt
+
+  # undefined_funcs_auto_path: undefined_funcs_auto.txt
+  # undefined_syms_auto_path: undefined_syms_auto.txt
+
+  extensions_path: tools/splat_ext
+
+  # string_encoding: ASCII
+  # data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+  # libultra_symbols: True
+  # hardware_regs: True
+  # gfx_ucode: # one of [f3d, f3db, f3dex, f3dexb, f3dex2]
+segments:
+  - name: header
+    type: header
+    start: 0x0
+
+  - name: ipl3
+    type: bin
+    start: 0x40
+
+  - name: entry
+    type: code
+    start: 0x1000
+    vram: 0x80000400
+    subsegments:
+      - [0x1000, hasm]
+
+  - name: main
+    type: code
+    start: 0x1060
+    vram: 0x80000460
+    follows_vram: entry
+    bss_size: 0x77500
+    subsegments:
+      - [0x1060, asm]
+      - [0x25E0, asm]
+      - [0x2A20, asm]
+      - [0x3EB0, asm]
+      - [0x6960, asm]
+      - [0x7540, asm]
+      - [0xCD50, asm]
+      - [0xCD60, asm]
+      - [0xD0E0, asm]
+      - [0xDEA0, asm]
+      - [0xE9D0, asm]
+      - [0xF490, asm]
+      - [0x114F0, asm]
+      - [0x11E30, asm]
+      - [0x158E0, asm]
+      - [0x17870, asm]
+      - [0x17A10, asm]
+      - [0x17B50, asm]
+      - [0x17EA0, asm]
+      - [0x18100, asm]
+      - [0x183F0, asm]
+      - [0x184B0, asm]
+      - [0x18DC0, asm]
+      - [0x18F10, asm]
+      - [0x18FB0, asm]
+      - [0x199E0, asm]
+      - [0x1A4E0, asm]
+      - [0x1A630, asm]
+      - [0x1A810, asm]
+      - [0x1AA60, asm]
+      - [0x1AC90, asm]
+      - [0x1AD10, asm]
+      - [0x1AD90, asm]
+      - [0x1B020, asm]
+      - [0x1B080, asm]
+      - [0x1B3A0, asm]
+      - [0x1B3C0, asm]
+      - [0x1B4D0, asm]
+      - [0x1B760, asm]
+      - [0x1B7F0, asm]
+      - [0x1B8A0, asm]
+      - [0x1BDD0, asm]
+      - [0x1C040, asm]
+      - [0x1C0B0, asm]
+      - [0x1C860, asm]
+      - [0x1C8F0, asm]
+      - [0x1C9B0, asm]
+      - [0x1CA40, asm]
+      - [0x1CA50, asm]
+      - [0x1D5D0, asm]
+      - [0x1D6E0, asm]
+      - [0x1D890, asm]
+      - [0x1E710, asm]
+      - [0x1F4B0, asm]
+      - [0x1F5C0, asm]
+      - [0x20220, asm]
+      - [0x20520, asm]
+      - [0x21070, asm]
+      - [0x21900, asm]
+      - [0x21910, asm]
+      - [0x219C0, asm]
+      - [0x21A00, asm]
+      - [0x21A40, asm]
+      - [0x21A60, asm]
+      - [0x21AB0, asm]
+      - [0x21AF0, asm]
+      - [0x21B90, asm]
+      - [0x21BC0, asm]
+      - [0x21C40, asm]
+      - [0x21CF0, asm]
+      - [0x21D90, asm]
+      - [0x21EB0, asm]
+      - [0x21F30, asm]
+      - [0x21F60, asm]
+      - [0x21F90, asm]
+      - [0x22030, asm]
+      - [0x22280, asm]
+      - [0x224E0, asm]
+      - [0x22700, asm]
+      - [0x22930, asm]
+      - [0x22AD0, asm]
+      - [0x22B60, asm]
+      - [0x22FB0, asm]
+      - [0x231A0, asm]
+      - [0x231B0, asm]
+      - [0x231C0, asm]
+      - [0x234D0, asm]
+      - [0x23550, asm]
+      - [0x235B0, asm]
+      - [0x23820, asm]
+      - [0x239E0, asm]
+      - [0x23A20, asm]
+      - [0x23B60, asm]
+      - [0x23E60, asm]
+      - [0x23E90, asm]
+      - [0x24000, asm]
+      - [0x241C0, asm]
+      - [0x24230, asm]
+      - [0x24420, asm]
+      - [0x24610, asm]
+      - [0x24A30, asm]
+      - [0x24D80, asm]
+      - [0x24F20, asm]
+      - [0x24F80, asm]
+      - [0x24FD0, asm]
+      - [0x250C0, asm]
+      - [0x252E0, asm]
+      - [0x254E0, asm]
+      - [0x25650, asm]
+      - [0x258C0, asm]
+      - [0x25910, asm]
+      - [0x25920, asm]
+      - [0x25940, asm]
+      - [0x25C50, asm]
+      - [0x25C60, asm]
+      - [0x25C90, asm]
+      - [0x25CF0, asm]
+      - [0x25EE0, asm]
+      - [0x25F60, asm]
+      - [0x25F70, asm]
+      - [0x26020, asm]
+      - [0x260D0, asm]
+      - [0x26120, data]
+      - { type: bss, vram: 0x8002FA50 }
+
+  - type: bin
+    start: 0x30650
+    follows_vram: main
+
+  - [0xC00000]

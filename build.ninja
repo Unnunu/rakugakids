@@ -1,0 +1,148 @@
+rule as
+  command = cpp -I include $in | mips-linux-gnu-as -EB -march=vr4300 -mtune=vr4300 -G 0 -I include -o $out
+  description = as $in
+rule bin
+  command = mips-linux-gnu-ld -r -b binary $in -o $out
+  description = bin $in
+rule ld
+  command = mips-linux-gnu-ld -T ver/jp/undefined_syms.txt -T undefined_syms_auto.txt -Map $mapfile -T $in -o $out
+  description = link $out
+rule z64
+  command = mips-linux-gnu-objcopy $in $out -O binary
+  description = rom $out
+rule sha1sum
+  command = sha1sum -c $in && touch $out
+  description = sha1sum $in
+build build/asm/header.o: as asm/header.s
+build build/assets/ipl3.o: bin assets/ipl3.bin
+build build/asm/1000.o: as asm/1000.s
+build build/asm/1060.o: as asm/1060.s
+build build/asm/25E0.o: as asm/25E0.s
+build build/asm/2A20.o: as asm/2A20.s
+build build/asm/3EB0.o: as asm/3EB0.s
+build build/asm/6960.o: as asm/6960.s
+build build/asm/7540.o: as asm/7540.s
+build build/asm/CD50.o: as asm/CD50.s
+build build/asm/CD60.o: as asm/CD60.s
+build build/asm/D0E0.o: as asm/D0E0.s
+build build/asm/DEA0.o: as asm/DEA0.s
+build build/asm/E9D0.o: as asm/E9D0.s
+build build/asm/F490.o: as asm/F490.s
+build build/asm/114F0.o: as asm/114F0.s
+build build/asm/11E30.o: as asm/11E30.s
+build build/asm/158E0.o: as asm/158E0.s
+build build/asm/17870.o: as asm/17870.s
+build build/asm/17A10.o: as asm/17A10.s
+build build/asm/17B50.o: as asm/17B50.s
+build build/asm/17EA0.o: as asm/17EA0.s
+build build/asm/18100.o: as asm/18100.s
+build build/asm/183F0.o: as asm/183F0.s
+build build/asm/184B0.o: as asm/184B0.s
+build build/asm/18DC0.o: as asm/18DC0.s
+build build/asm/18F10.o: as asm/18F10.s
+build build/asm/18FB0.o: as asm/18FB0.s
+build build/asm/199E0.o: as asm/199E0.s
+build build/asm/1A4E0.o: as asm/1A4E0.s
+build build/asm/1A630.o: as asm/1A630.s
+build build/asm/1A810.o: as asm/1A810.s
+build build/asm/1AA60.o: as asm/1AA60.s
+build build/asm/1AC90.o: as asm/1AC90.s
+build build/asm/1AD10.o: as asm/1AD10.s
+build build/asm/1AD90.o: as asm/1AD90.s
+build build/asm/1B020.o: as asm/1B020.s
+build build/asm/1B080.o: as asm/1B080.s
+build build/asm/1B3A0.o: as asm/1B3A0.s
+build build/asm/1B3C0.o: as asm/1B3C0.s
+build build/asm/1B4D0.o: as asm/1B4D0.s
+build build/asm/1B760.o: as asm/1B760.s
+build build/asm/1B7F0.o: as asm/1B7F0.s
+build build/asm/1B8A0.o: as asm/1B8A0.s
+build build/asm/1BDD0.o: as asm/1BDD0.s
+build build/asm/1C040.o: as asm/1C040.s
+build build/asm/1C0B0.o: as asm/1C0B0.s
+build build/asm/1C860.o: as asm/1C860.s
+build build/asm/1C8F0.o: as asm/1C8F0.s
+build build/asm/1C9B0.o: as asm/1C9B0.s
+build build/asm/1CA40.o: as asm/1CA40.s
+build build/asm/1CA50.o: as asm/1CA50.s
+build build/asm/1D5D0.o: as asm/1D5D0.s
+build build/asm/1D6E0.o: as asm/1D6E0.s
+build build/asm/1D890.o: as asm/1D890.s
+build build/asm/1E710.o: as asm/1E710.s
+build build/asm/1F4B0.o: as asm/1F4B0.s
+build build/asm/1F5C0.o: as asm/1F5C0.s
+build build/asm/20220.o: as asm/20220.s
+build build/asm/20520.o: as asm/20520.s
+build build/asm/21070.o: as asm/21070.s
+build build/asm/21900.o: as asm/21900.s
+build build/asm/21910.o: as asm/21910.s
+build build/asm/219C0.o: as asm/219C0.s
+build build/asm/21A00.o: as asm/21A00.s
+build build/asm/21A40.o: as asm/21A40.s
+build build/asm/21A60.o: as asm/21A60.s
+build build/asm/21AB0.o: as asm/21AB0.s
+build build/asm/21AF0.o: as asm/21AF0.s
+build build/asm/21B90.o: as asm/21B90.s
+build build/asm/21BC0.o: as asm/21BC0.s
+build build/asm/21C40.o: as asm/21C40.s
+build build/asm/21CF0.o: as asm/21CF0.s
+build build/asm/21D90.o: as asm/21D90.s
+build build/asm/21EB0.o: as asm/21EB0.s
+build build/asm/21F30.o: as asm/21F30.s
+build build/asm/21F60.o: as asm/21F60.s
+build build/asm/21F90.o: as asm/21F90.s
+build build/asm/22030.o: as asm/22030.s
+build build/asm/22280.o: as asm/22280.s
+build build/asm/224E0.o: as asm/224E0.s
+build build/asm/22700.o: as asm/22700.s
+build build/asm/22930.o: as asm/22930.s
+build build/asm/22AD0.o: as asm/22AD0.s
+build build/asm/22B60.o: as asm/22B60.s
+build build/asm/22FB0.o: as asm/22FB0.s
+build build/asm/231A0.o: as asm/231A0.s
+build build/asm/231B0.o: as asm/231B0.s
+build build/asm/231C0.o: as asm/231C0.s
+build build/asm/234D0.o: as asm/234D0.s
+build build/asm/23550.o: as asm/23550.s
+build build/asm/235B0.o: as asm/235B0.s
+build build/asm/23820.o: as asm/23820.s
+build build/asm/239E0.o: as asm/239E0.s
+build build/asm/23A20.o: as asm/23A20.s
+build build/asm/23B60.o: as asm/23B60.s
+build build/asm/23E60.o: as asm/23E60.s
+build build/asm/23E90.o: as asm/23E90.s
+build build/asm/24000.o: as asm/24000.s
+build build/asm/241C0.o: as asm/241C0.s
+build build/asm/24230.o: as asm/24230.s
+build build/asm/24420.o: as asm/24420.s
+build build/asm/24610.o: as asm/24610.s
+build build/asm/24A30.o: as asm/24A30.s
+build build/asm/24D80.o: as asm/24D80.s
+build build/asm/24F20.o: as asm/24F20.s
+build build/asm/24F80.o: as asm/24F80.s
+build build/asm/24FD0.o: as asm/24FD0.s
+build build/asm/250C0.o: as asm/250C0.s
+build build/asm/252E0.o: as asm/252E0.s
+build build/asm/254E0.o: as asm/254E0.s
+build build/asm/25650.o: as asm/25650.s
+build build/asm/258C0.o: as asm/258C0.s
+build build/asm/25910.o: as asm/25910.s
+build build/asm/25920.o: as asm/25920.s
+build build/asm/25940.o: as asm/25940.s
+build build/asm/25C50.o: as asm/25C50.s
+build build/asm/25C60.o: as asm/25C60.s
+build build/asm/25C90.o: as asm/25C90.s
+build build/asm/25CF0.o: as asm/25CF0.s
+build build/asm/25EE0.o: as asm/25EE0.s
+build build/asm/25F60.o: as asm/25F60.s
+build build/asm/25F70.o: as asm/25F70.s
+build build/asm/26020.o: as asm/26020.s
+build build/asm/260D0.o: as asm/260D0.s
+build build/asm/data/26120.data.o: as asm/data/26120.data.s
+build build/asm/data/30650.bss.o: as asm/data/30650.bss.s
+build build/assets/30650.o: bin assets/30650.bin
+build build/rakugakids.jp.elf: ld rakugakids.jp.ld | build/asm/header.o build/assets/ipl3.o build/asm/1000.o build/asm/1060.o build/asm/25E0.o build/asm/2A20.o build/asm/3EB0.o build/asm/6960.o build/asm/7540.o build/asm/CD50.o build/asm/CD60.o build/asm/D0E0.o build/asm/DEA0.o build/asm/E9D0.o build/asm/F490.o build/asm/114F0.o build/asm/11E30.o build/asm/158E0.o build/asm/17870.o build/asm/17A10.o build/asm/17B50.o build/asm/17EA0.o build/asm/18100.o build/asm/183F0.o build/asm/184B0.o build/asm/18DC0.o build/asm/18F10.o build/asm/18FB0.o build/asm/199E0.o build/asm/1A4E0.o build/asm/1A630.o build/asm/1A810.o build/asm/1AA60.o build/asm/1AC90.o build/asm/1AD10.o build/asm/1AD90.o build/asm/1B020.o build/asm/1B080.o build/asm/1B3A0.o build/asm/1B3C0.o build/asm/1B4D0.o build/asm/1B760.o build/asm/1B7F0.o build/asm/1B8A0.o build/asm/1BDD0.o build/asm/1C040.o build/asm/1C0B0.o build/asm/1C860.o build/asm/1C8F0.o build/asm/1C9B0.o build/asm/1CA40.o build/asm/1CA50.o build/asm/1D5D0.o build/asm/1D6E0.o build/asm/1D890.o build/asm/1E710.o build/asm/1F4B0.o build/asm/1F5C0.o build/asm/20220.o build/asm/20520.o build/asm/21070.o build/asm/21900.o build/asm/21910.o build/asm/219C0.o build/asm/21A00.o build/asm/21A40.o build/asm/21A60.o build/asm/21AB0.o build/asm/21AF0.o build/asm/21B90.o build/asm/21BC0.o build/asm/21C40.o build/asm/21CF0.o build/asm/21D90.o build/asm/21EB0.o build/asm/21F30.o build/asm/21F60.o build/asm/21F90.o build/asm/22030.o build/asm/22280.o build/asm/224E0.o build/asm/22700.o build/asm/22930.o build/asm/22AD0.o build/asm/22B60.o build/asm/22FB0.o build/asm/231A0.o build/asm/231B0.o build/asm/231C0.o build/asm/234D0.o build/asm/23550.o build/asm/235B0.o build/asm/23820.o build/asm/239E0.o build/asm/23A20.o build/asm/23B60.o build/asm/23E60.o build/asm/23E90.o build/asm/24000.o build/asm/241C0.o build/asm/24230.o build/asm/24420.o build/asm/24610.o build/asm/24A30.o build/asm/24D80.o build/asm/24F20.o build/asm/24F80.o build/asm/24FD0.o build/asm/250C0.o build/asm/252E0.o build/asm/254E0.o build/asm/25650.o build/asm/258C0.o build/asm/25910.o build/asm/25920.o build/asm/25940.o build/asm/25C50.o build/asm/25C60.o build/asm/25C90.o build/asm/25CF0.o build/asm/25EE0.o build/asm/25F60.o build/asm/25F70.o build/asm/26020.o build/asm/260D0.o build/asm/data/26120.data.o build/asm/data/30650.bss.o build/assets/30650.o
+  mapfile = build/rakugakids.jp.map
+build build/rakugakids.jp.z64: z64 build/rakugakids.jp.elf
+build build/rakugakids.jp.ok: sha1sum ver/jp/checksum.sha1 | build/rakugakids.jp.z64
+default build/rakugakids.jp.ok
