@@ -9,6 +9,7 @@ dependencies = [
     "n64img>=0.3.3",
     "ninja-syntax>=1.7.2",
     "pygfxd>=1.0.5",
+    "requests>=2.34.2",
     "spimdisasm>=1.42.3",
     "splat64>=0.50.0",
 ]

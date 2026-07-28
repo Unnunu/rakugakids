@@ -10,11 +10,17 @@ import sys
 from pathlib import Path
 
 import ninja_syntax
+import requests
+import splat
 import splat.scripts.split as split
 from splat.segtypes.linker_entry import LinkerEntry
 
 ROOT = Path(__file__).parent
 BASENAME = "rakugakids"
+TOOLS_DIR = ROOT / "tools"
+
+COMMON_INCLUDES = "-I include -I build/include -I ultralib/include -I ultralib/include/ido -I ultralib/include/PR -I ultralib/src"
+IDO_DEFS = "-DF3DEX_GBI -D_LANGUAGE_C -DNDEBUG -D_FINALROM -DBUILD_VERSION=VERSION_I"
 
 CROSS = "mips-linux-gnu-"
 CROSS_AS = f"{CROSS}as"
@@ -25,6 +31,8 @@ CROSS_OBJCOPY = f"{CROSS}objcopy"
 INCLUDES = "-I include"
 AS_FLAGS = f"-EB -march=vr4300 -mtune=vr4300 -G 0 {INCLUDES}"
 
+IDO_53_CC = TOOLS_DIR / "ido5.3" / "cc"
+CC_CMD = f"python3 tools/asm-processor/build.py {IDO_53_CC} -- {CROSS_AS} {AS_FLAGS} -- -G 0 -non_shared -fullwarn -woff 649,838,654 -verbose -Xcpluscomm -nostdinc -Wab,-r4300_mul $flags -mips2 {COMMON_INCLUDES} {IDO_DEFS} -c -o $out $in"
 
 def clean():
     shutil.rmtree("asm", ignore_errors=True)
@@ -35,8 +43,73 @@ def clean():
     if Path(".splache").exists():
         Path(".splache").unlink()
 
+def obtain_ido_recomp(version: str):
+    download_dir = TOOLS_DIR / f"ido{version}"
+
+    if download_dir.exists():
+        print(
+            f"IDO {version} already exists at {download_dir}, removing and re-downloading"
+        )
+        shutil.rmtree(download_dir)
+
+    IDO_RECOMP_VERSION = "v1.1"
+
+    if sys.platform == "darwin":
+        ido_os = "macos"
+    elif sys.platform == "linux":
+        ido_os = "linux"
+    elif sys.platform == "win32":
+        ido_os = "windows"
+    else:
+        print(f"Unsupported platform {sys.platform}")
+        sys.exit(1)
+
+    ido_tar_name = f"ido-{version}-recomp-{ido_os}.tar.gz"
+    url = f"https://github.com/decompals/ido-static-recomp/releases/download/{IDO_RECOMP_VERSION}/{ido_tar_name}"
+    target_path = TOOLS_DIR / ido_tar_name
+
+    print(f"Downloading IDO {version}: {url}")
+    response = requests.get(url)
+    if response.status_code != 200:
+        print(f"Failed to download IDO tarball from {url}")
+        sys.exit(1)
+    with open(target_path, "wb") as f:
+        f.write(response.content)
+
+    shutil.unpack_archive(target_path, download_dir)
+    os.remove(target_path)
+
+def setup():
+    obtain_ido_recomp("5.3")
+    print("Setup complete!")
+
 
 def create_build_script(linker_entries: list[LinkerEntry], version: str):
+    built_objects: Set[Path] = set()
+
+    def build(
+        object_paths: Union[Path, List[Path]],
+        src_paths: List[Path],
+        task: str,
+        variables: Dict[str, str] = {},
+        implicit_outputs: List[str] = [],
+    ):
+        if not isinstance(object_paths, list):
+            object_paths = [object_paths]
+
+        object_strs = [str(obj) for obj in object_paths]
+
+        for object_path in object_paths:
+            if object_path.suffix == ".o":
+                built_objects.add(object_path)
+            ninja.build(
+                outputs=object_strs,
+                rule=task,
+                inputs=[str(s) for s in src_paths],
+                variables=variables,
+                implicit_outputs=implicit_outputs,
+            )
+
     os.makedirs("build", exist_ok=True)
 
     ninja_file = f"build.ninja"
@@ -46,6 +119,11 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
         "as",
         description="as $in",
         command=f"cpp {INCLUDES} $in | {CROSS_AS} {AS_FLAGS} -o $out",
+    )
+    ninja.rule(
+        "cc",
+        description="cc $in",
+        command=f"{CC_CMD}",
     )
     ninja.rule(
         "bin",
@@ -68,25 +146,35 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
         command="sha1sum -c $in && touch $out",
     )
 
-    built_objects = []
-
     for entry in linker_entries:
-        if entry.object_path is None:
-            continue
-
         seg = entry.segment
+
         if seg.type[0] == ".":
             continue
 
-        src = entry.src_paths[0]
-        obj = entry.object_path
+        if entry.object_path is None:
+            continue
 
-        if src.suffix == ".s":
-            ninja.build(str(obj), "as", str(src))
-            built_objects.append(str(obj))
-        elif src.suffix == ".bin":
-            ninja.build(str(obj), "bin", str(src))
-            built_objects.append(str(obj))
+        if isinstance(seg, splat.segtypes.n64.header.N64SegHeader):
+            build(entry.object_path, entry.src_paths, "as")
+        elif isinstance(seg, splat.segtypes.common.asm.CommonSegAsm) or isinstance(
+            seg, splat.segtypes.common.data.CommonSegData
+        ):
+            build(entry.object_path, entry.src_paths, "as")
+        elif isinstance(seg, splat.segtypes.common.c.CommonSegC):
+            opt_level = "-O2"
+            build(entry.object_path, entry.src_paths, "cc", variables={"flags": f"{opt_level}"})
+        elif isinstance(seg, splat.segtypes.common.textbin.CommonSegTextbin):
+            if seg.sibling is None:
+                build(entry.object_path, entry.src_paths, "as")
+            elif seg.get_linker_section() == ".text":
+                # Only build the .text section file for a textbin with siblings
+                build(entry.object_path, entry.src_paths, "as")
+        elif isinstance(seg, splat.segtypes.common.bin.CommonSegBin):
+            build(entry.object_path, entry.src_paths, "bin")
+        else:
+            print(f"ERROR: Unsupported build segment type {seg.type}")
+            sys.exit(1)
 
     ld_path = f"{BASENAME}.{version}.ld"
     map_path = f"build/{BASENAME}.{version}.map"
@@ -99,7 +187,7 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
         elf_path,
         "ld",
         ld_path,
-        implicit=built_objects,
+        implicit=[str(obj) for obj in built_objects],
         variables={"mapfile": map_path},
     )
 
@@ -113,16 +201,21 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Configure the build for a specific ROM version")
+    parser = argparse.ArgumentParser(description="Configure the project")
     parser.add_argument("-v", "--version", choices=["eu", "jp"], default="jp",
                         help="ROM region (eu, jp)")
     parser.add_argument("-c", "--clean", action="store_true", help="Clean build artifacts for the selected version")
+    parser.add_argument("-s", "--setup", action="store_true", help="Download and extract IDO compiler")
     args = parser.parse_args()
 
     version = args.version
 
     if args.clean:
         clean()
+
+    if args.setup:
+        setup()
+        sys.exit(0)
 
     baserom = Path(f"ver/{version}/baserom.z64")
     yaml_file = Path(f"ver/{version}/{BASENAME}.yaml")
