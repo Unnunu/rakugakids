@@ -19,7 +19,7 @@ ROOT = Path(__file__).parent
 BASENAME = "rakugakids"
 TOOLS_DIR = ROOT / "tools"
 
-COMMON_INCLUDES = "-I include -I build/include -I ultralib/include -I ultralib/include/ido -I ultralib/include/PR -I ultralib/src"
+COMMON_INCLUDES = "-I include -I build/include -I ultralib/include -I ultralib/include/PR -I ultralib/src"
 IDO_DEFS = "-DF3DEX_GBI -D_LANGUAGE_C -DNDEBUG -D_FINALROM -DBUILD_VERSION=VERSION_I"
 
 CROSS = "mips-linux-gnu-"
@@ -30,9 +30,10 @@ CROSS_OBJCOPY = f"{CROSS}objcopy"
 
 INCLUDES = "-I include"
 AS_FLAGS = f"-EB -march=vr4300 -mtune=vr4300 -G 0 {INCLUDES}"
-
+O32_TOOL = ROOT / "ultralib/tools/set_o32abi_bit.py"
 IDO_53_CC = TOOLS_DIR / "ido5.3" / "cc"
 CC_CMD = f"python3 tools/asm-processor/build.py {IDO_53_CC} -- {CROSS_AS} {AS_FLAGS} -- -G 0 -non_shared -fullwarn -woff 649,838,654 -verbose -Xcpluscomm -nostdinc -Wab,-r4300_mul $flags -mips2 {COMMON_INCLUDES} {IDO_DEFS} -c -o $out $in"
+LIBULTRA_CC_CMD = f"{IDO_53_CC} -G 0 -non_shared -fullwarn -verbose -Wab,-r4300_mul -woff 513,516,649,838,712 -Xcpluscomm -nostdinc $flags {COMMON_INCLUDES} {IDO_DEFS} -c -o $out $in && {O32_TOOL} $out"
 
 def clean():
     shutil.rmtree("asm", ignore_errors=True)
@@ -126,6 +127,11 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
         command=f"{CC_CMD}",
     )
     ninja.rule(
+        "cc_libultra",
+        description="cc $in",
+        command=f"{LIBULTRA_CC_CMD}",
+    )
+    ninja.rule(
         "bin",
         description="bin $in",
         command=f"{CROSS_LD} -r -b binary $in -o $out",
@@ -162,8 +168,20 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
         ):
             build(entry.object_path, entry.src_paths, "as")
         elif isinstance(seg, splat.segtypes.common.c.CommonSegC):
-            opt_level = "-O2"
-            build(entry.object_path, entry.src_paths, "cc", variables={"flags": f"{opt_level}"})
+            c_path = entry.src_paths[0]
+
+            if "ultralib" not in str(c_path):
+                build(entry.object_path, entry.src_paths, "cc", variables={"flags": f"-O2"})
+            else:
+                opt_level = "-O2"
+                mips = "-mips2"
+
+                if "ultralib/src/io" in str(c_path):
+                    opt_level = "-O1"
+                if "ultralib/src/gu" in str(c_path):
+                    opt_level = "-O3"
+
+                build(entry.object_path, entry.src_paths, "cc_libultra", variables={"flags": f"{opt_level} {mips}"})
         elif isinstance(seg, splat.segtypes.common.textbin.CommonSegTextbin):
             if seg.sibling is None:
                 build(entry.object_path, entry.src_paths, "as")

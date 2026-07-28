@@ -1,6 +1,7 @@
 /build/
 /asm/
 /assets/
+/expected/
 
 *.z64
 .splache
@@ -8,3 +9,4 @@
 build.ninja
 *.d
 *.ld
+objdiff.json

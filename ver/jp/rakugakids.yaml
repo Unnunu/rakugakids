@@ -15,6 +15,7 @@ options:
 
   ld_script_path: rakugakids.jp.ld
   ld_dependencies: True
+  ld_symbol_header_path: build/include/ld_addrs.h
 
   find_file_boundaries: True
   header_encoding: ASCII
@@ -27,7 +28,7 @@ options:
   # auto_link_sections: [".data", ".rodata", ".bss"]
 
   symbol_addrs_path:
-    - symbol_addrs.txt
+    - ver/jp/symbol_addrs.txt
   reloc_addrs_path:
     - reloc_addrs.txt
 
@@ -84,8 +85,10 @@ segments:
       - [0x17870, asm]
       - [0x17A10, asm]
       - [0x17B50, asm]
-      - [0x17EA0, asm]
-      - [0x18100, asm]
+      - [0x17CB0, c, ../ultralib/src/gu/rotate]
+      - [0x17EA0, c, ../ultralib/src/gu/sinf]
+      - [0x18060, c, ../ultralib/src/audio/synsetvol]
+      - [0x18100, c, ../ultralib/src/io/sptask]
       - [0x183F0, asm]
       - [0x184B0, asm]
       - [0x18DC0, asm]
@@ -189,7 +192,20 @@ segments:
       - [0x26020, asm]
       - [0x260D0, asm]
       - [0x26120, data]
-      - { type: bss, vram: 0x8002FA50 }
+      - [0x2FD20, .rodata, ../ultralib/src/gu/rotate]
+      - [0x2FD30, .rodata, ../ultralib/src/gu/sinf]
+      - [0x2FD80, rodata]
+      - [0x2FDD0, rodata]
+      - [0x2FDE0, rodata]
+      - [0x2FE40, rodata]
+      - [0x2FF00, rodata]
+      - [0x2FF10, rodata]
+      - [0x2FF60, rodata]
+      - [0x2FF70, rodata]
+      - { type: bss, vram: 0x8002FA50, name: bss1 }
+      - { type: .bss, vram: 0x800A3500, name: ../ultralib/src/gu/rotate }
+      - { type: .bss, vram: 0x800A3510, name: ../ultralib/src/io/sptask }
+      - { type: bss, vram: 0x800A3550, anme: bss2 }
 
   - type: bin
     start: 0x30650
