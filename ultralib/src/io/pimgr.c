@@ -14,43 +14,51 @@ static OSMesgQueue getRamromQ ALIGNED(0x8);
 static OSMesg getRamromBuf[1];
 static OSMesgQueue freeRamromQ ALIGNED(0x8);
 static OSMesg freeRamromBuf[1];
-static void ramromMain(void*);
+static void ramromMain(void *);
 #endif
 
 static OSMesgQueue piEventQueue ALIGNED(0x8);
 static OSMesg piEventBuf[1];
 
-OSDevMgr __osPiDevMgr = { 0 };
-OSPiHandle* __osPiTable = NULL;
-#if BUILD_VERSION >= VERSION_J
+OSDevMgr __osPiDevMgr = {0};
+OSPiHandle *__osPiTable = NULL;
+#if 1 // BUILD_VERSION >= VERSION_J
 OSPiHandle __Dom1SpeedParam ALIGNED(0x8);
 OSPiHandle __Dom2SpeedParam ALIGNED(0x8);
-OSPiHandle* __osCurrentHandle[2] ALIGNED(0x8) = { &__Dom1SpeedParam, &__Dom2SpeedParam };
+OSPiHandle *__osCurrentHandle[2] ALIGNED(0x8) = {&__Dom1SpeedParam, &__Dom2SpeedParam};
+static void SPEED_PARAM_FUNC(void);
 #else
 extern OSPiHandle CartRomHandle;
 extern OSPiHandle LeoDiskHandle;
-OSPiHandle* __osCurrentHandle[2] ALIGNED(0x8) = { &CartRomHandle, &LeoDiskHandle };
+OSPiHandle *__osCurrentHandle[2] ALIGNED(0x8) = {&CartRomHandle, &LeoDiskHandle};
 #endif
 
-void osCreatePiManager(OSPri pri, OSMesgQueue* cmdQ, OSMesg* cmdBuf, s32 cmdMsgCnt) {
+void osCreatePiManager(OSPri pri, OSMesgQueue *cmdQ, OSMesg *cmdBuf, s32 cmdMsgCnt)
+{
     u32 savedMask;
     OSPri oldPri;
     OSPri myPri;
 
 #ifdef _DEBUG
-    if ((pri < OS_PRIORITY_IDLE) || (pri > OS_PRIORITY_MAX)) {
+    if ((pri < OS_PRIORITY_IDLE) || (pri > OS_PRIORITY_MAX))
+    {
         __osError(ERR_OSCREATEPIMANAGER, 1, pri);
         return;
     }
 #endif
 
-    if (__osPiDevMgr.active) {
+    if (__osPiDevMgr.active)
+    {
         return;
     }
-    osCreateMesgQueue(cmdQ, cmdBuf, cmdMsgCnt);
-    osCreateMesgQueue(&piEventQueue, (OSMesg*)piEventBuf, 1);
 
-    if (!__osPiAccessQueueEnabled) {
+    SPEED_PARAM_FUNC();
+
+    osCreateMesgQueue(cmdQ, cmdBuf, cmdMsgCnt);
+    osCreateMesgQueue(&piEventQueue, (OSMesg *)piEventBuf, 1);
+
+    if (!__osPiAccessQueueEnabled)
+    {
         __osPiCreateAccessQueue();
     }
 
@@ -58,7 +66,8 @@ void osCreatePiManager(OSPri pri, OSMesgQueue* cmdQ, OSMesg* cmdBuf, s32 cmdMsgC
     oldPri = -1;
     myPri = osGetThreadPri(NULL);
 
-    if (myPri < pri) {
+    if (myPri < pri)
+    {
         oldPri = myPri;
         osSetThreadPri(NULL, pri);
     }
@@ -80,13 +89,30 @@ void osCreatePiManager(OSPri pri, OSMesgQueue* cmdQ, OSMesg* cmdBuf, s32 cmdMsgC
 #endif
     __osRestoreInt(savedMask);
 
-    if (oldPri != -1) {
+    if (oldPri != -1)
+    {
         osSetThreadPri(NULL, oldPri);
     }
 }
 
+void SPEED_PARAM_FUNC(void)
+{
+    __Dom1SpeedParam.latency = IO_READ(PI_BSD_DOM1_LAT_REG);
+    __Dom1SpeedParam.pulse = IO_READ(PI_BSD_DOM1_PWD_REG);
+    __Dom1SpeedParam.pageSize = IO_READ(PI_BSD_DOM1_PGS_REG);
+    __Dom1SpeedParam.relDuration = IO_READ(PI_BSD_DOM1_RLS_REG);
+    __Dom1SpeedParam.domain = PI_DOMAIN1;
+
+    __Dom2SpeedParam.latency = IO_READ(PI_BSD_DOM2_LAT_REG);
+    __Dom2SpeedParam.pulse = IO_READ(PI_BSD_DOM2_PWD_REG);
+    __Dom2SpeedParam.pageSize = IO_READ(PI_BSD_DOM2_PGS_REG);
+    __Dom2SpeedParam.relDuration = IO_READ(PI_BSD_DOM2_RLS_REG);
+    __Dom2SpeedParam.domain = PI_DOMAIN2;
+}
+
 #ifndef _FINALROM
-static void ramromMain(void* arg) {
+static void ramromMain(void *arg)
+{
     u32 sent;
     u8 tmp[3];
 
@@ -95,14 +121,16 @@ static void ramromMain(void* arg) {
     osSetEventMesg(OS_EVENT_RDB_REQ_RAMROM, &getRamromQ, NULL);
     osSetEventMesg(OS_EVENT_RDB_FREE_RAMROM, &freeRamromQ, NULL);
 
-    while (TRUE) {
+    while (TRUE)
+    {
         osRecvMesg(&getRamromQ, NULL, OS_MESG_BLOCK);
 
         __osPiGetAccess();
 
         sent = 0;
 
-        while (sent < 1) {
+        while (sent < 1)
+        {
             sent += __osRdbSend(tmp, 1, RDB_TYPE_GtoH_RAMROM);
         }
 

@@ -6,30 +6,35 @@
 
 extern s32 __osPfsLastChannel;
 
-#define READFORMAT(ptr) ((__OSContRamReadFormat*)(ptr))
+#define READFORMAT(ptr) ((__OSContRamReadFormat *)(ptr))
 
 #if BUILD_VERSION >= VERSION_J
-s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int force) {
+s32 __osContRamWrite(OSMesgQueue *mq, int channel, u16 address, u8 *buffer, int force)
+{
     s32 ret = 0;
     s32 i;
-    u8* ptr;
+    u8 *ptr = (u8 *)__osPfsPifRam.ramarray;
     s32 retry = 2;
     u8 crc;
 
-    if ((force != TRUE) && (address < PFS_LABEL_AREA) && (address != 0)) {
+    if ((force != TRUE) && (address < PFS_LABEL_AREA) && (address != 0))
+    {
         return 0;
     }
 
     __osSiGetAccess();
 
-    do {
-        ptr = (u8*)__osPfsPifRam.ramarray;
-
-        if (__osContLastCmd != CONT_CMD_WRITE_PAK || (u32)__osPfsLastChannel != channel) {
+    do
+    {
+        if (__osContLastCmd != CONT_CMD_WRITE_PAK || (u32)__osPfsLastChannel != channel)
+        {
             __osContLastCmd = CONT_CMD_WRITE_PAK;
             __osPfsLastChannel = channel;
 
-            for (i = 0; i < channel; i++) { *ptr++ = CONT_CMD_REQUEST_STATUS; }
+            for (i = 0; i < channel; i++)
+            {
+                *ptr++ = CONT_CMD_REQUEST_STATUS;
+            }
 
             __osPfsPifRam.pifstatus = CONT_CMD_EXE;
 
@@ -40,7 +45,9 @@ s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int 
             READFORMAT(ptr)->datacrc = 0xFF;
 
             ptr[sizeof(__OSContRamReadFormat)] = CONT_CMD_END;
-        } else {
+        }
+        else
+        {
             ptr += channel;
         }
 
@@ -62,15 +69,22 @@ s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int 
 
         ret = CHNL_ERR(*READFORMAT(ptr));
 
-        if (!ret) {
-            if (crc != READFORMAT(ptr)->datacrc) {
-                if ((ret = __osPfsGetStatus(mq, channel))) {
+        if (!ret)
+        {
+            if (crc != READFORMAT(ptr)->datacrc)
+            {
+                if ((ret = __osPfsGetStatus(mq, channel)))
+                {
                     break;
-                } else {
+                }
+                else
+                {
                     ret = PFS_ERR_CONTRFAIL;
                 }
             }
-        } else {
+        }
+        else
+        {
             ret = PFS_ERR_NOPACK;
         }
     } while ((ret == PFS_ERR_CONTRFAIL) && (retry-- >= 0));
@@ -83,15 +97,17 @@ s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int 
 
 static void __osPackRamWriteData(int channel, u16 address, u8 *buffer);
 
-s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int force) {
+s32 __osContRamWrite(OSMesgQueue *mq, int channel, u16 address, u8 *buffer, int force)
+{
     s32 ret = 0;
     s32 i;
-    u8* ptr = (u8*)&__osPfsPifRam;
+    u8 *ptr = (u8 *)&__osPfsPifRam;
     __OSContRamReadFormat ramreadformat;
     s32 retry = 2;
     u8 crc;
 
-    if ((force != TRUE) && (address < PFS_LABEL_AREA) && (address != 0)) {
+    if ((force != TRUE) && (address < PFS_LABEL_AREA) && (address != 0))
+    {
         return 0;
     }
 
@@ -101,13 +117,16 @@ s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int 
     ret = __osSiRawStartDma(OS_WRITE, &__osPfsPifRam);
     osRecvMesg(mq, NULL, OS_MESG_BLOCK);
 
-    do {
+    do
+    {
         ret = __osSiRawStartDma(OS_READ, &__osPfsPifRam);
         osRecvMesg(mq, NULL, OS_MESG_BLOCK);
-        ptr = (u8*)&__osPfsPifRam;
+        ptr = (u8 *)&__osPfsPifRam;
 
-        if (channel != 0) {
-            for (i = 0; i < channel; i++) {
+        if (channel != 0)
+        {
+            for (i = 0; i < channel; i++)
+            {
                 ptr++;
             }
         }
@@ -115,18 +134,23 @@ s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int 
         ramreadformat = *READFORMAT(ptr);
 
         ret = CHNL_ERR(ramreadformat);
-        if (ret == 0) {
-            if (__osContDataCrc(buffer) != ramreadformat.datacrc) {
+        if (ret == 0)
+        {
+            if (__osContDataCrc(buffer) != ramreadformat.datacrc)
+            {
                 ret = __osPfsGetStatus(mq, channel);
-                
-                if (ret != 0) {
+
+                if (ret != 0)
+                {
                     __osSiRelAccess();
                     return ret;
                 }
-                
+
                 ret = PFS_ERR_CONTRFAIL;
             }
-        } else {
+        }
+        else
+        {
             ret = PFS_ERR_NOPACK;
         }
     } while ((ret == PFS_ERR_CONTRFAIL) && retry-- >= 0);
@@ -136,7 +160,8 @@ s32 __osContRamWrite(OSMesgQueue* mq, int channel, u16 address, u8* buffer, int 
     return ret;
 }
 
-static void __osPackRamWriteData(int channel, u16 address, u8 *buffer) {
+static void __osPackRamWriteData(int channel, u16 address, u8 *buffer)
+{
     u8 *ptr;
     __OSContRamReadFormat ramreadformat;
     int i;
@@ -149,15 +174,20 @@ static void __osPackRamWriteData(int channel, u16 address, u8 *buffer) {
     ramreadformat.cmd = CONT_CMD_WRITE_PAK;
     ramreadformat.address = (address << 0x5) | __osContAddressCrc(address);
     ramreadformat.datacrc = CONT_CMD_NOP;
-    
-    for (i = 0; i < ARRLEN(ramreadformat.data); i++) {
+
+    for (i = 0; i < ARRLEN(ramreadformat.data); i++)
+    {
         ramreadformat.data[i] = *buffer++;
     }
-    
-    if (channel != 0) {
-        for (i = 0; i < channel; i++) { *ptr++ = CONT_CMD_REQUEST_STATUS; }
+
+    if (channel != 0)
+    {
+        for (i = 0; i < channel; i++)
+        {
+            *ptr++ = CONT_CMD_REQUEST_STATUS;
+        }
     }
-    
+
     *(__OSContRamReadFormat *)ptr = ramreadformat;
     ptr += sizeof(__OSContRamReadFormat);
     ptr[0] = CONT_CMD_END;

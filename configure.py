@@ -19,21 +19,23 @@ ROOT = Path(__file__).parent
 BASENAME = "rakugakids"
 TOOLS_DIR = ROOT / "tools"
 
-COMMON_INCLUDES = "-I include -I build/include -I ultralib/include -I ultralib/include/PR -I ultralib/src"
-IDO_DEFS = "-DF3DEX_GBI -D_LANGUAGE_C -DNDEBUG -D_FINALROM -DBUILD_VERSION=VERSION_I"
+COMMON_INCLUDES = "-I include -I build/include -I ultralib/include -I ultralib/include/PR -I ultralib/src -I ultralib/include/compiler/ido"
+IDO_DEFS = "-DF3DEX_GBI -D_LANGUAGE_C -DNDEBUG -D_FINALROM"
 
 CROSS = "mips-linux-gnu-"
 CROSS_AS = f"{CROSS}as"
 CROSS_CPP = f"{CROSS}cpp"
 CROSS_LD = f"{CROSS}ld"
+CROSS_STRIP = f"{CROSS}strip"
 CROSS_OBJCOPY = f"{CROSS}objcopy"
 
 INCLUDES = "-I include"
 AS_FLAGS = f"-EB -march=vr4300 -mtune=vr4300 -G 0 {INCLUDES}"
 O32_TOOL = ROOT / "ultralib/tools/set_o32abi_bit.py"
 IDO_53_CC = TOOLS_DIR / "ido5.3" / "cc"
-CC_CMD = f"python3 tools/asm-processor/build.py {IDO_53_CC} -- {CROSS_AS} {AS_FLAGS} -- -G 0 -non_shared -fullwarn -woff 649,838,654 -verbose -Xcpluscomm -nostdinc -Wab,-r4300_mul $flags -mips2 {COMMON_INCLUDES} {IDO_DEFS} -c -o $out $in"
-LIBULTRA_CC_CMD = f"{IDO_53_CC} -G 0 -non_shared -fullwarn -verbose -Wab,-r4300_mul -woff 513,516,649,838,712 -Xcpluscomm -nostdinc $flags {COMMON_INCLUDES} {IDO_DEFS} -c -o $out $in && {O32_TOOL} $out"
+CC_CMD = f"python3 tools/asm-processor/build.py {IDO_53_CC} -- {CROSS_AS} {AS_FLAGS} -- -G 0 -non_shared -fullwarn -woff 649,838,654 -verbose -Xcpluscomm -nostdinc -Wab,-r4300_mul $flags -mips2 {COMMON_INCLUDES} {IDO_DEFS} $version -c -o $out $in"
+LIBULTRA_CC_CMD = f"{IDO_53_CC} -G 0 -non_shared -fullwarn -verbose -Wab,-r4300_mul -woff 513,516,649,838,712 -Xcpluscomm -nostdinc $flags {COMMON_INCLUDES} {IDO_DEFS} $version -c -o $out $in && {O32_TOOL} $out"
+LIBULTRA_AS_CMD = f"{IDO_53_CC} -G 0 -non_shared -fullwarn -verbose -Wab,-r4300_mul -woff 513,516,649,838,712 $flags {COMMON_INCLUDES} -D_FINALROM -DBUILD_VERSION=VERSION_I -c -o $out $in && {O32_TOOL} $out && {CROSS_STRIP} $out -N asdasdasdasd"
 
 def clean():
     shutil.rmtree("asm", ignore_errors=True)
@@ -122,6 +124,11 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
         command=f"cpp {INCLUDES} $in | {CROSS_AS} {AS_FLAGS} -o $out",
     )
     ninja.rule(
+        "as_libultra",
+        description="as $in",
+        command=f"{LIBULTRA_AS_CMD}",
+    )
+    ninja.rule(
         "cc",
         description="cc $in",
         command=f"{CC_CMD}",
@@ -166,22 +173,91 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
         elif isinstance(seg, splat.segtypes.common.asm.CommonSegAsm) or isinstance(
             seg, splat.segtypes.common.data.CommonSegData
         ):
-            build(entry.object_path, entry.src_paths, "as")
+            s_path = entry.src_paths[0]
+
+            if "ultralib" in str(s_path):
+                opt_level = "-O2"
+
+                if "/os/" in str(s_path):
+                    opt_level = "-O1"
+
+                if s_path.stem in ["exceptasm"]:
+                    mips = "-mips3 -32"
+                else:
+                    mips = "-mips2 -o32"
+
+                build(
+                    entry.object_path,
+                    entry.src_paths,
+                    "as_libultra",
+                    variables={"flags": f"{opt_level} {mips}"},
+                )
+            else:
+                build(entry.object_path, entry.src_paths, "as")
         elif isinstance(seg, splat.segtypes.common.c.CommonSegC):
             c_path = entry.src_paths[0]
 
             if "ultralib" not in str(c_path):
-                build(entry.object_path, entry.src_paths, "cc", variables={"flags": f"-O2"})
+                build(entry.object_path, entry.src_paths, "cc", variables={"flags": f"-O2", "version":"-DBUILD_VERSION=VERSION_I"})
             else:
                 opt_level = "-O2"
                 mips = "-mips2"
+                libultra_version = "-DBUILD_VERSION=VERSION_I"
 
+                if "ultralib/src/os" in str(c_path):
+                    opt_level = "-O1"
                 if "ultralib/src/io" in str(c_path):
                     opt_level = "-O1"
+                    if "ultralib/src/io/pfs" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/contpfs" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/contramwrite" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/contramread" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/crc" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/sirawdma" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "leointerrupt" in str(c_path):
+                        opt_level = "-O2"
+                    if "ultralib/src/io/contreaddata" in str(c_path):
+                        opt_level = "-O2"
+                    if "ultralib/src/io/pimgr" in str(c_path):
+                        opt_level = "-O2"
+                    if "ultralib/src/io/leo" in str(c_path):
+                        opt_level = "-O2"
+                    if "ultralib/src/io/viswapcontext" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/vimgr" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/pfsisplug" in str(c_path):
+                        opt_level = "-O1"
+                        
                 if "ultralib/src/gu" in str(c_path):
                     opt_level = "-O3"
+                if "ultralib/src/audio" in str(c_path):
+                    opt_level = "-O3"
 
-                build(entry.object_path, entry.src_paths, "cc_libultra", variables={"flags": f"{opt_level} {mips}"})
+                if "ultralib/src/libc" in str(c_path):
+                    opt_level = "-O3"
+                    mips = "-mips2 -o32"
+
+                    if c_path.stem in ["ll", "llbit", "llcvt"]:
+                        opt_level = "-O1"
+                        mips = "-mips3 -32"
+
+                build(entry.object_path, entry.src_paths, "cc_libultra",
+                        variables={"flags": f"{opt_level} {mips}", "version": f"{libultra_version}"})
         elif isinstance(seg, splat.segtypes.common.textbin.CommonSegTextbin):
             if seg.sibling is None:
                 build(entry.object_path, entry.src_paths, "as")

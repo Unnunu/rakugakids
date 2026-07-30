@@ -7,7 +7,8 @@
 OSPiHandle LeoDiskHandle ALIGNED(0x8);
 OSPiHandle *__osDiskHandle;
 
-OSPiHandle *osLeoDiskInit(void) {
+OSPiHandle *osLeoDiskInit(void)
+{
     u32 saveMask;
 
     LeoDiskHandle.type = DEVICE_TYPE_64DD;
@@ -18,10 +19,12 @@ OSPiHandle *osLeoDiskInit(void) {
     LeoDiskHandle.relDuration = 2;
     LeoDiskHandle.domain = PI_DOMAIN2;
 
+#if 0
     IO_WRITE(PI_BSD_DOM2_LAT_REG, LeoDiskHandle.latency);
     IO_WRITE(PI_BSD_DOM2_PWD_REG, LeoDiskHandle.pulse);
     IO_WRITE(PI_BSD_DOM2_PGS_REG, LeoDiskHandle.pageSize);
     IO_WRITE(PI_BSD_DOM2_RLS_REG, LeoDiskHandle.relDuration);
+#endif
     LeoDiskHandle.speed = 0;
 
     bzero(&LeoDiskHandle.transferInfo, sizeof(__OSTranxInfo));
