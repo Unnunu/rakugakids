@@ -67,21 +67,21 @@ segments:
     follows_vram: entry
     bss_size: 0x77500
     subsegments:
-      - [0x1060, c]
-      - [0x25E0, asm]
-      - [0x2A20, asm]
-      - [0x3EB0, asm]
-      - [0x6960, asm]
-      - [0x7540, asm]
-      - [0xCD50, asm]
-      - [0xCD60, asm]
-      - [0xD0E0, asm]
-      - [0xDEA0, asm]
-      - [0xE9D0, asm]
-      - [0xF490, asm]
-      - [0x114F0, asm]
-      - [0x11E30, asm]
-      - [0x158E0, asm]
+      - [0x1060, c, main]
+      - [0x25E0, c]
+      - [0x2A20, c, scheduler]
+      - [0x3EB0, c]
+      - [0x6960, c]
+      - [0x7540, c]
+      - [0xCD50, c]
+      - [0xCD60, c]
+      - [0xD0E0, c]
+      - [0xDEA0, c]
+      - [0xE9D0, c]
+      - [0xF490, c]
+      - [0x114F0, c, audio]
+      - [0x11E30, c]
+      - [0x158E0, c]
 
       # libultra
 
@@ -231,7 +231,13 @@ segments:
       - [0x26050, c, ../ultralib/src/io/vigetcurrframebuf]
       - [0x26090, c, ../ultralib/src/io/spsetpc]
 
-      - [0x260D0, data]
+      - [0x260D0, textbin, rsp/rspboot]
+      - [0x261A0, textbin, rsp/gspFast3D]
+      - [0x27510, data]
+
+
+      - [0x28330, .data, main]
+      - [0x28410, data]
 
       - [0x2E300, .data, ../ultralib/src/audio/sl]
       - [0x2E310, .data, ../ultralib/src/os/exceptasm]
@@ -266,8 +272,13 @@ segments:
       - [0x2FF00, .rodata, ../ultralib/src/gu/position]
       - [0x2FF10, .rodata, ../ultralib/src/gu/cosf]
       - [0x2FF60, rodata]
-      - [0x2FF70, rodata]
-      - { type: bss, vram: 0x8002FA50, name: bss1 }
+
+      - { start: 0x2FF70, type: databin, name: rsp/gspFast3D, linker_section_order: .rodata}
+      - [0x30390, rodata]
+
+      - { type: .bss, vram: 0x8002FA50, name: main }
+      - { type: .bss, vram: 0x80035FC0, name: scheduler }
+      - { type: bss, vram: 0x80043480, name: bss1 }
       - { type: .bss, vram: 0x800A3500, name: ../ultralib/src/gu/rotate }
       - { type: .bss, vram: 0x800A3510, name: ../ultralib/src/io/sptask }
       - { type: .bss, vram: 0x800A3550, name: ../ultralib/src/io/leointerrupt }

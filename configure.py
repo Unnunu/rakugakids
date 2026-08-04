@@ -20,7 +20,7 @@ BASENAME = "rakugakids"
 TOOLS_DIR = ROOT / "tools"
 
 COMMON_INCLUDES = "-I include -I build/include -I ultralib/include -I ultralib/include/PR -I ultralib/src -I ultralib/include/compiler/ido"
-IDO_DEFS = "-DF3DEX_GBI -D_LANGUAGE_C -DNDEBUG -D_FINALROM"
+IDO_DEFS = "-DF3DEX_GBI_2 -D_LANGUAGE_C -DNDEBUG -D_FINALROM"
 
 CROSS = "mips-linux-gnu-"
 CROSS_AS = f"{CROSS}as"

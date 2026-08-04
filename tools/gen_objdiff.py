@@ -1,65 +1,18 @@
 #!/usr/bin/env python3
 import json
-import os
 from pathlib import Path
 
-def generate_objdiff_config():
-    units = []
-    
-    # Add src/*.c files
-    src_dir = Path("src")
-    for c_file in sorted(src_dir.rglob("*.c")):
-        rel_path = c_file.relative_to(".")
-        name = str(rel_path.with_suffix(""))
-        units.append({
-            "name": name,
-            "target_path": f"expected/build/{rel_path.with_suffix(".o")}",
-            "base_path": f"build/{rel_path.with_suffix(".o")}",
-            "metadata": {
-                "source_path": f"{rel_path}",
-            },
-            "scratch": {
-                "platform": "n64",
-                "compiler": "ido5.3",
-                "ctx_path": "ctx.c",
-                "c_flags": "-O2 -mips2"
-            }
-        })
-    
-    # Add libultra/*.c files
-    libultra_dir = Path("ultralib")
-    for c_file in sorted(libultra_dir.rglob("*.c")):
-        rel_path = c_file.relative_to(".")
-        name = str(rel_path.with_suffix(""))
-        units.append({
-            "name": name,
-            "target_path": f"expected/build/{rel_path.with_suffix(".o")}",
-            "base_path": f"build/{rel_path.with_suffix(".o")}",
-            "metadata": {
-                "source_path": f"{rel_path}",
-            },
-            "scratch": {
-                "platform": "n64",
-                "compiler": "ido5.3",
-                "ctx_path": "ctx.c",
-                "c_flags": "-O2 -mips2"
-            }
-        })
-    
-    config = {
-        "$schema": "https://raw.githubusercontent.com/encounter/objdiff/main/config.schema.json",
-        "custom_make": "make",
-        "build_target": False,
-        "build_base": True,
-        "watch_patterns": ["*.c", "*.h", "*.s", "*.S", "*.inc"],
-        "ignore_patterns": ["build/**/*", "expected/**/*"],
-        "units": units
-    }
-    
-    with open("objdiff.json", "w") as f:
-        json.dump(config, f, indent=2)
-    
-    print(f"Generated objdiff.json with {len(units)} units")
+units = [{
+    "name": str(f.relative_to(".").with_suffix("")),
+    "target_path": f"expected/build/{f.relative_to('.').with_suffix('.o')}",
+    "base_path": f"build/{f.relative_to('.').with_suffix('.o')}",
+} for f in list(Path("src").rglob("*.c")) + list(Path("ultralib").rglob("*.c"))]
 
-if __name__ == "__main__":
-    generate_objdiff_config()
+json.dump({
+    "custom_make": "ninja",
+    "build_base": True,
+    "watch_patterns": ["*.c", "*.h", "*.s", "*.S", "*.inc"],
+    "units": sorted(units, key=lambda x: x["name"])
+}, open("objdiff.json", "w"), indent=2)
+
+print(f"Generated objdiff.json with {len(units)} units")

@@ -5,8 +5,14 @@ osTvType = 0x80000300; // absolute:True
 osRomBase = 0x80000308; // absolute:True
 osResetType = 0x8000030C; // absolute:True
 osAppNMIBuffer = 0x8000031C; // absolute:True
-__dummy = 0x80006D94;
-__osGetActiveQueue = 0x80010084;
+
+rspbootTextStart = 0x800254D0; // name_end:rspbootTextEnd
+gspFast3DTextStart = 0x800255A0; // name_end:gspFast3DTextEnd
+gspFast3DDataStart = 0x8002F370; // name_end:gspFast3DDataEnd
+
+mem_clear = 0x80001040;
+heap_alloc = 0x8000C160;
+
 osSendMesg = 0x80016B20;
 osPfsFreeBlocks = 0x80016C70;
 osRecvMesg = 0x80016E10;
@@ -250,6 +256,7 @@ osClockRate = 0x8002D770;
 osViClock = 0x8002D778;
 __osShutdown = 0x8002D77C;
 __OSGlobalIntMask = 0x8002D780;
+osViModeTable = 0x8002D790;
 __osPfsInodeCacheChannel = 0x8002E910;
 __osPfsInodeCacheBank = 0x8002E914;
 env_data_0000 = 0x8002EBAE;
@@ -327,3 +334,5 @@ viEventQueue = 0x800A6EE0;
 viEventBuf = 0x800A6EF8;
 viRetraceMsg = 0x800A6F10;
 viCounterMsg = 0x800A6F28;
+
+D_80035FC0 = 0x80035FC0; //size:0x1498
