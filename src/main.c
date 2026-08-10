@@ -22,7 +22,7 @@ OSMesg D_80035F98[8];
 /* .data */
 s32 D_80027730[2] = { 0, 0 };
 
-Struct6 D_80027738[2] = {
+ScTask D_80027738[2] = {
     { 0,
       0,
       0x40,
@@ -100,7 +100,7 @@ void func_800004BC(void *arg) {
 }
 
 void func_80000550(void *arg) {
-    Struct3 sp54;
+    ScClient sp54;
     s16 *sp50;
 
     sp50 = 0;
@@ -109,9 +109,9 @@ void func_80000550(void *arg) {
 
     osCreateMesgQueue(&D_80035F78, D_80035F90, ARRAY_COUNT(D_80035F90));
     osCreateMesgQueue(&D_8002FA50, D_80035F98, ARRAY_COUNT(D_80035F98));
-    func_80001E20(&D_80035FC0, 2, 1);
-    func_8000228C(&D_80035FC0, &sp54, &D_8002FA50, 13);
-    D_80037458 = func_8000213C(&D_80035FC0);
+    sched_init(&gScheduler, OS_VI_NTSC_LAN1, 1);
+    sched_register_client(&gScheduler, &sp54, &D_8002FA50, 13);
+    D_80037458 = func_8000213C(&gScheduler);
     osViSetSpecialFeatures(OS_VI_GAMMA_OFF);
     func_80000DEC();
     func_80006940();
@@ -125,7 +125,7 @@ void func_80000550(void *arg) {
             case 1:
                 D_80044254->unk_39C98++;
                 if (D_80044254->unk_76C78 == 0) {
-                    if (func_80002888(&D_80035FC0) < 2U) {
+                    if (func_80002888(&gScheduler) < 2U) {
                         func_8000C864(D_80044260);
                     }
                 } else {
@@ -133,7 +133,7 @@ void func_80000550(void *arg) {
                 }
                 break;
             case 2:
-                func_80002928(&D_80035FC0);
+                func_80002928(&gScheduler);
                 break;
             case 4:
                 break;
@@ -152,30 +152,28 @@ void func_800007D4(void) {
 
 #ifdef NON_EQUIVALENT
 void func_80000800(void) {
-    Struct6 *task;
+    ScTask *task;
 
     gDPFullSync(D_80044258++);
     gSPEndDisplayList(D_80044258++);
     osWritebackDCache(&D_80044254->unk_00[D_80044254->unk_39C90], sizeof(Struct5));
 
-    task = &D_80027738[func_80002144(&D_80035FC0)];
-    task->unk_10.t.data_ptr = D_80044254->unk_00[D_80044254->unk_39C90].unk_00;
-    task->unk_10.t.data_size = (D_80044258 - D_80044254->unk_00[D_80044254->unk_39C90].unk_00) * sizeof(Gfx);
-    task->unk_10.t.ucode_boot_size = rspbootTextEnd - rspbootTextStart;
-    task->unk_10.t.output_buff = D_80045270;
-    task->unk_10.t.output_buff_size = D_80045270 + sizeof(D_80045270);
+    task = &D_80027738[func_80002144(&gScheduler)];
+    task->osTask.t.data_ptr = D_80044254->unk_00[D_80044254->unk_39C90].unk_00;
+    task->osTask.t.data_size = (D_80044258 - D_80044254->unk_00[D_80044254->unk_39C90].unk_00) * sizeof(Gfx);
+    task->osTask.t.ucode_boot_size = (u32) rspbootTextEnd - (u32) rspbootTextStart;
+    task->osTask.t.output_buff = D_80045270;
+    task->osTask.t.output_buff_size = D_80045270 + sizeof(D_80045270);
     task->unk_08 = 0x40;
 
-    func_80002890(&D_80035FC0, task);
+    func_80002890(&gScheduler, task);
 }
 #else
 void func_80000800(void);
 #pragma GLOBAL_ASM("asm/nonmatchings/main/func_80000800.s")
 #endif
 
-#ifdef NON_EQUIVALENT
 void func_80000954(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
-    s32 temp;
     gDPPipeSync(D_80044258++);
     gDPSetCycleType(D_80044258++, G_CYC_FILL);
     gDPSetColorImage(D_80044258++, G_IM_FMT_RGBA, D_80044254->unk_39C92, SCREEN_WIDTH,
@@ -186,12 +184,7 @@ void func_80000954(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
     gDPPipeSync(D_80044258++);
     gDPSetCycleType(D_80044258++, G_CYC_1CYCLE);
 }
-#else
-void func_80000954(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_80000954.s")
-#endif
 
-#ifdef NON_EQUIVALENT
 void func_80000AD0(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
     gDPPipeSync(D_80044258++);
     gDPSetCycleType(D_80044258++, G_CYC_FILL);
@@ -203,10 +196,6 @@ void func_80000AD0(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
     gDPPipeSync(D_80044258++);
     gDPSetCycleType(D_80044258++, G_CYC_1CYCLE);
 }
-#else
-void func_80000AD0(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_80000AD0.s")
-#endif
 
 void func_80000C4C(void) {
     gDPSetColorImage(D_80044258++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, D_3D6500);
@@ -305,18 +294,13 @@ void func_80001188(u8 *arg0, u8 *arg1, s32 arg2) {
     }
 }
 
-#ifdef NON_EQUIVALENT
 void func_800011B8(u64 *arg0, u64 *arg1, s32 arg2) {
-    arg2 = ((arg2 + 15) & ~0xF) / sizeof(u64);
+    arg2 = ALIGN_16(arg2) / sizeof(u64);
 
     while (arg2--) {
         *arg1++ = *arg0++;
     }
 }
-#else
-void func_800011B8(u64 *arg0, u64 *arg1, s32 arg2);
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_800011B8.s")
-#endif
 
 void func_80001200(void) {
     func_80003CBC();

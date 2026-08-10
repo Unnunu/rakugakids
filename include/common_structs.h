@@ -1,15 +1,15 @@
 #ifndef _COMMON_STRUCTS_H
 #define _COMMON_STRUCTS_H
 
-typedef struct Struct6 {
+typedef struct ScTask {
     /* 0x00 */ s32 unk_00;
     /* 0x04 */ s32 unk_04;
     /* 0x08 */ s32 unk_08;
-    /* 0x0C */ void *unk_0C;
-    /* 0x10 */ OSTask unk_10;
+    /* 0x0C */ void *fb;
+    /* 0x10 */ OSTask osTask;
     /* 0x50 */ OSMesgQueue *unk_50;
     /* 0x54 */ OSMesg unk_54;
-} Struct6; // size = 0x58
+} ScTask; // size = 0x58
 
 typedef struct Scheduler {
     /* 0x0000 */ u16 unk_00;
@@ -18,9 +18,9 @@ typedef struct Scheduler {
     /* 0x0006 */ u16 unk_06;
     /* 0x0008 */ u16 unk_08;
     /* 0x000A */ s16 unk_0A;
-    /* 0x0044 */ OSMesgQueue unk_C;
+    /* 0x0044 */ OSMesgQueue audioTaskQueue;
     /* 0x005C */ OSMesg unk_24[8];
-    /* 0x0044 */ OSMesgQueue unk_44;
+    /* 0x0044 */ OSMesgQueue gfxTaskQueue;
     /* 0x005C */ OSMesg unk_5C[8];
     /* 0x007C */ OSMesgQueue unk_7C;
     /* 0x0094 */ OSMesg unk_94[64];
@@ -28,9 +28,9 @@ typedef struct Scheduler {
     /* 0x01AC */ OSMesg unk_1AC[8];
     /* 0x01CC */ OSMesgQueue unk_1CC;
     /* 0x01E4 */ OSMesg unk_1E4[64];
-    /* 0x02E4 */ OSMesgQueue queueSync;
+    /* 0x02E4 */ OSMesgQueue eventQueue;
     /* 0x02FC */ OSMesg unk_2FC[8];
-    /* 0x031C */ OSMesgQueue queueSP;
+    /* 0x031C */ OSMesgQueue queueSPComplete;
     /* 0x0334 */ OSMesg unk_334[8];
     /* 0x0354 */ OSMesgQueue queueDP;
     /* 0x036C */ OSMesg unk_36C[8];
@@ -49,11 +49,11 @@ typedef struct Scheduler {
     /* 0x0960 */ OSThread unk_960;
     /* 0x0B10 */ OSThread unk_B10;
     /* 0x0CC0 */ OSThread unk_CC0;
-    /* 0x0E70 */ struct Struct3 *unk_E70;
+    /* 0x0E70 */ struct ScClient *clientList;
     /* 0x0E74 */ char unk_E74[0x600];
-    /* 0x1474 */ Struct6 *unk_1474;
-    /* 0x1478 */ Struct6 *unk_1478;
-    /* 0x147C */ Struct6 *unk_147C;
+    /* 0x1474 */ ScTask *gfxTask;
+    /* 0x1478 */ ScTask *audioTask;
+    /* 0x147C */ ScTask *unk_147C;
     /* 0x1480 */ s32 unk_1480;
     /* 0x1484 */ s32 unk_1484;
     /* 0x1488 */ s32 unk_1488;
@@ -62,23 +62,44 @@ typedef struct Scheduler {
     /* 0x1494 */ s32 unk_1494;
 } Scheduler; // size = 0x1498
 
-typedef struct Struct3 {
-    /* 0x00 */ struct Struct3 *next;
-    /* 0x04 */ OSMesgQueue *unk_04;
-    /* 0x08 */ s32 unk_08;
-} Struct3; // size = 0x4
+typedef struct ScClient {
+    /* 0x00 */ struct ScClient *next;
+    /* 0x04 */ OSMesgQueue *queue;
+    /* 0x08 */ s32 mask;
+} ScClient; // size = 0x4
 
 typedef struct Struct5 {
     /* 0x00000 */ Gfx unk_00[0x39C9];
 } Struct5; // size = 0x1CE48
+
+typedef struct Struct4Sub1Sub {
+    /* 0x00 */ u16 unk_00;
+    /* 0x02 */ u8 unk_02;
+    /* 0x03 */ u8 unk_03;
+} Struct4Sub1Sub; // size = 4
+
+typedef struct Struct4Sub1 {
+    /* 0x00 */ u16 unk_00;
+    /* 0x02 */ u16 unk_02;
+    /* 0x04 */ s16 unk_04;
+    /* 0x06 */ s16 unk_06;
+    /* 0x08 */ s16 unk_08;
+    /* 0x0A */ u16 unk_0A;
+    /* 0x0C */ s16 unk_0C;
+    /* 0x0E */ s8 unk_0E;
+    /* 0x0F */ s8 unk_0F;
+    /* 0x10 */ Struct4Sub1Sub unk_10[20];
+} Struct4Sub1; // size = 0x60
 
 typedef struct Struct4 {
     /* 0x00000 */ Struct5 unk_00[2];
     /* 0x39C90 */ s16 unk_39C90;
     /* 0x39C92 */ u16 unk_39C92;
     /* 0x39C94 */ s32 unk_39C94;
-    /* 0x39C98 */ s32 unk_39C98;
-    /* 0x39C9C */ char unk_39C9C[0x76C78 - 0x39C9C];
+    /* 0x39C98 */ u32 unk_39C98;
+    /* 0x39C9C */ s16 unk_39C9C;
+    /* 0x39C9E */ Struct4Sub1 unk_39C9E[4];
+    /* 0x39E1E */ char unk_39E1E[0x76C78 - 0x39E1E];
     /* 0x76C78 */ s32 unk_76C78;
     /* 0x76C7C */ s32 unk_76C7C;
     /* 0x76C80 */ s32 unk_76C80;
@@ -97,5 +118,11 @@ typedef struct HeapChunk {
     /* 0x08 */ s32 size;
     /* 0x0C */ struct HeapChunk **unk_0C;
 } HeapChunk; // size = 0x10
+
+typedef struct AudioConfig {
+    /* 0x00 */ s32 frequency;
+    /* 0x04 */ u32 freqMultiplier;
+    /* 0x08 */ s32 maxCommands;
+} AudioConfig; // size >= 0xC
 
 #endif

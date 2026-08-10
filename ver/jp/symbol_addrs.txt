@@ -301,10 +301,8 @@ cosf_rodata_0028 = 0x8002F338;
 cosf_rodata_0030 = 0x8002F340;
 cosf_rodata_0038 = 0x8002F348;
 __libm_qnan_f = 0x8002F360;
-osBbUsbDevGetHandle = 0x80072AFC;
-osVoiceControlGain = 0x80072B04;
-myfree = 0x8007FF44;
-rotate_bss_0000 = 0x800A3500;
+alSynGetFXRef = 0x800212B0;
+
 leoDiskStack = 0x800A3550;
 __osContPifRam = 0x800A4550; // size:0x40
 __osContLastCmd = 0x800A4590;
@@ -335,4 +333,4 @@ viEventBuf = 0x800A6EF8;
 viRetraceMsg = 0x800A6F10;
 viCounterMsg = 0x800A6F28;
 
-D_80035FC0 = 0x80035FC0; //size:0x1498
+gScheduler = 0x80035FC0; //size:0x1498

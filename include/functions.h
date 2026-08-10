@@ -2,14 +2,17 @@
 #define _FUNCTIONS_H
 
 void mem_clear(void *arg0, s32 arg1);
+void func_80000D1C(s32 romAddr, void *vramAddr, s32 size);
+void func_800108F0(ALSynConfig *synConfig, s32 arg1, AudioConfig *arg2);
 void func_800019E0(void);
 void func_80001BFC(void); // TODO: wrong signature
-void func_80001E20(Scheduler *, u8, u8);
+void sched_init(Scheduler *, u8, u8);
+OSMesgQueue *func_80002134(Scheduler *arg0);
 OSMesgQueue *func_8000213C(Scheduler *);
 s32 func_80002144(Scheduler *);
-void func_8000228C(Scheduler *, Struct3 *, OSMesgQueue *, s32);
+void sched_register_client(Scheduler *, ScClient *, OSMesgQueue *, s32);
 s32 func_80002888(Scheduler *);
-void func_80002890(Scheduler *, Struct6 *);
+void func_80002890(Scheduler *, ScTask *);
 void func_80002928(Scheduler *);
 void func_80003CBC(void);
 void func_80004C70(void);

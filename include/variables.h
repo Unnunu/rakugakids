@@ -1,10 +1,10 @@
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
-extern Struct6 D_80027738[];
+extern ScTask D_80027738[];
 extern Gfx D_80028790[];
 extern HeapChunk *D_8002A2D0;
-extern Scheduler D_80035FC0;
+extern Scheduler gScheduler;
 extern OSMesgQueue *D_80037458;
 extern OSIoMesg D_80037460;
 extern HeapChunk D_80044230;

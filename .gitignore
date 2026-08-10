@@ -1,12 +1,17 @@
 /build/
 /asm/
 /assets/
+tools/ido5.3/
+tools/ido7.1/
 /expected/
 
 *.z64
 .splache
 .ninja_log
-build.ninja
 *.d
 *.ld
+*.m2c
+
+build.ninja
 objdiff.json
+/ctx.c

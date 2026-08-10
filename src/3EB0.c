@@ -1,5 +1,12 @@
 #include "common.h"
 
+#define INPUT_DIRECTION (U_JPAD | D_JPAD | L_JPAD | R_JPAD)
+
+extern OSMesgQueue D_8004F270;
+extern OSMesg D_8004F288[1];
+extern OSContStatus D_8004F290[MAXCONTROLLERS];
+extern OSContPad D_8004F2A0[MAXCONTROLLERS];
+
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800032B0.s")
 
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800032FC.s")
@@ -20,11 +27,153 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004AC4.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004C70.s")
+// split ??
+
+void func_80004C70(void) {
+    s16 i;
+    u8 bitpattern;
+
+    osCreateMesgQueue(&D_8004F270, D_8004F288, ARRAY_COUNT(D_8004F288));
+    osSetEventMesg(OS_EVENT_SI, &D_8004F270, (OSMesg) 0);
+    osContInit(&D_8004F270, &bitpattern, D_8004F290);
+
+    for (i = 0; i < MAXCONTROLLERS; i++) {
+        D_80044254->unk_39C9E[i].unk_00 = 0;
+        if ((bitpattern & (1 << i)) && !(D_8004F290[i].errno & (CONT_NO_RESPONSE_ERROR | CONT_OVERRUN_ERROR))) {
+            D_80044254->unk_39C9E[i].unk_00 |= 0x8000;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004D68.s")
 
+#ifdef NON_MATCHING
+void func_80004DD4(void) {
+    s32 i, j;
+    u8 a22;
+    u16 a12;
+    u16 v03;
+    Struct4Sub1 *p;
+    s32 v0;
+
+    if ((D_80044254->unk_39C98 % 5) == 0) {
+        osContStartQuery(&D_8004F270);
+        osRecvMesg(&D_8004F270, NULL, OS_MESG_BLOCK);
+        osContGetQuery(D_8004F290);
+
+        for (i = 0; i < MAXCONTROLLERS; i++) {
+            if (!(D_8004F290[i].errno & (CONT_NO_RESPONSE_ERROR | CONT_OVERRUN_ERROR))) {
+                D_80044254->unk_39C9E[i].unk_00 |= 0x8000;
+
+                if (D_8004F290[i].status & CONT_CARD_ON) {
+                    D_80044254->unk_39C9E[i].unk_00 |= 0x4000;
+                } else {
+                    D_80044254->unk_39C9E[i].unk_00 &= ~0x4000;
+                }
+
+                if (D_8004F290[i].status & CONT_CARD_PULL) {
+                    D_80044254->unk_39C9E[i].unk_00 |= 0x2000;
+                } else {
+                    D_80044254->unk_39C9E[i].unk_00 &= ~0x2000;
+                }
+            } else {
+                D_80044254->unk_39C9E[i].unk_00 &= ~0x8000;
+            }
+        }
+    }
+
+    osContStartReadData(&D_8004F270);
+    osRecvMesg(&D_8004F270, NULL, OS_MESG_BLOCK);
+    osContGetReadData(D_8004F2A0);
+
+    for (i = 0, p = D_80044254->unk_39C9E; i < MAXCONTROLLERS; i++, p++) {
+        if (p->unk_00 & 0x8000) {
+            a22 = 0;
+            a12 = 0;
+
+            p->unk_06 = D_8004F2A0[i].stick_x;
+            p->unk_08 = D_8004F2A0[i].stick_y;
+
+            if (p->unk_00 & 0x800) {
+                if (p->unk_06 < -20) {
+                    a12 |= L_JPAD;
+                }
+                if (p->unk_06 > 20) {
+                    a12 |= R_JPAD;
+                }
+                if (p->unk_08 > 20) {
+                    a12 |= U_JPAD;
+                }
+                if (p->unk_08 < -20) {
+                    a12 |= D_JPAD;
+                }
+
+                if (p->unk_06 < -50) {
+                    a22 |= 0x80;
+                }
+                if (p->unk_06 > 50) {
+                    a22 |= 0x80;
+                }
+                if (p->unk_08 > 50) {
+                    a22 |= 0x80;
+                }
+                if (p->unk_08 < -50) {
+                    a22 |= 0x80;
+                }
+
+                v03 = p->unk_0A;
+            } else {
+                a12 = D_8004F2A0[i].button;
+                v03 = p->unk_02;
+            }
+
+            p->unk_10[0].unk_00 = v03;
+            if (p->unk_10[0].unk_02 ^ 0xFF) {
+                p->unk_10[0].unk_02++;
+            }
+            p->unk_10[0].unk_03 = a22;
+
+            v0 = (p->unk_02 & INPUT_DIRECTION) != (a12 & INPUT_DIRECTION);
+            if (v0) {
+                for (j = 18; j >= 0; j--) {
+                    p->unk_10[j + 1].unk_00 = p->unk_10[j].unk_00;
+                    p->unk_10[j + 1].unk_02 = p->unk_10[j].unk_02;
+                    p->unk_10[j + 1].unk_03 = p->unk_10[j].unk_03;
+                }
+
+                p->unk_10[0].unk_00 = 0;
+                p->unk_10[0].unk_02 = 0;
+                p->unk_10[0].unk_03 = 0;
+                p->unk_0E = 1;
+            }
+
+            a12 = 0;
+            if (p->unk_06 < -20) {
+                a12 |= L_JPAD;
+            }
+            if (p->unk_06 > 20) {
+                a12 |= R_JPAD;
+            }
+            if (p->unk_08 > 20) {
+                a12 |= U_JPAD;
+            }
+            if (p->unk_08 < -20) {
+                a12 |= D_JPAD;
+            }
+
+            p->unk_0C = (p->unk_0A ^ a12) & a12;
+            p->unk_0A = a12;
+
+            a12 = D_8004F2A0[i].button;
+            p->unk_04 = (p->unk_02 ^ a12) & a12;
+            p->unk_02 = a12;
+        }
+    }
+}
+#else
+void func_80004DD4(void);
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004DD4.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80005198.s")
 

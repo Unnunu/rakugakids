@@ -164,7 +164,7 @@ segments:
       - [0x21CF0, c, ../ultralib/src/audio/synsetfxmix]
       - [0x21D90, c, ../ultralib/src/audio/save]
       - [0x21E50, c, ../ultralib/src/io/pfsrepairid]
-      - [0x21EB0, asm]
+      - [0x21EB0, c, ../ultralib/src/audio/syngetfxref]
       - [0x21F30, c, ../ultralib/src/io/sp]
       - [0x21F60, c, ../ultralib/src/io/si]
       - [0x21F90, c, ../ultralib/src/gu/translate]

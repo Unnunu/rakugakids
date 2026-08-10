@@ -33,7 +33,8 @@ INCLUDES = "-I include"
 AS_FLAGS = f"-EB -march=vr4300 -mtune=vr4300 -G 0 {INCLUDES}"
 O32_TOOL = ROOT / "ultralib/tools/set_o32abi_bit.py"
 IDO_53_CC = TOOLS_DIR / "ido5.3" / "cc"
-CC_CMD = f"python3 tools/asm-processor/build.py {IDO_53_CC} -- {CROSS_AS} {AS_FLAGS} -- -G 0 -non_shared -fullwarn -woff 649,838,654 -verbose -Xcpluscomm -nostdinc -Wab,-r4300_mul $flags -mips2 {COMMON_INCLUDES} {IDO_DEFS} $version -c -o $out $in"
+IDO_71_CC = TOOLS_DIR / "ido7.1" / "cc"
+CC_CMD = f"python3 tools/asm-processor/build.py {IDO_71_CC} -- {CROSS_AS} {AS_FLAGS} -- -G 0 -non_shared -fullwarn -woff 649,838,654 -verbose -Xcpluscomm -nostdinc -Wab,-r4300_mul $flags -mips2 {COMMON_INCLUDES} {IDO_DEFS} $version -c -o $out $in"
 LIBULTRA_CC_CMD = f"{IDO_53_CC} -G 0 -non_shared -fullwarn -verbose -Wab,-r4300_mul -woff 513,516,649,838,712 -Xcpluscomm -nostdinc $flags {COMMON_INCLUDES} {IDO_DEFS} $version -c -o $out $in && {O32_TOOL} $out"
 LIBULTRA_AS_CMD = f"{IDO_53_CC} -G 0 -non_shared -fullwarn -verbose -Wab,-r4300_mul -woff 513,516,649,838,712 $flags {COMMON_INCLUDES} -D_FINALROM -DBUILD_VERSION=VERSION_I -c -o $out $in && {O32_TOOL} $out && {CROSS_STRIP} $out -N asdasdasdasd"
 
@@ -84,6 +85,7 @@ def obtain_ido_recomp(version: str):
 
 def setup():
     obtain_ido_recomp("5.3")
+    obtain_ido_recomp("7.1")
     print("Setup complete!")
 
 
