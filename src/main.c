@@ -81,8 +81,8 @@ void func_800004BC(void *);
 void func_80000550(void *);
 void func_80000DEC(void);
 
-void func_800012BC(void);
-void func_800012E0(void);
+s32 func_800012BC(s32);
+s32 func_800012E0(s32);
 void func_80001820(void);
 
 void main(void) {
@@ -123,7 +123,7 @@ void func_80000550(void *arg) {
 
         switch (*sp50) {
             case 1:
-                D_80044254->unk_39C98++;
+                D_80044254->frameCounter++;
                 if (D_80044254->unk_76C78 == 0) {
                     if (func_80002888(&gScheduler) < 2U) {
                         func_8000C864(D_80044260);
@@ -143,7 +143,7 @@ void func_80000550(void *arg) {
 
 void func_80000750(void) {
     gSPSegment(D_80044258++, 0, 0x00000000);
-    gSPSegment(D_80044258++, 2, VIRTUAL_TO_PHYSICAL(D_80100000[D_80044254->unk_39C90]));
+    gSPSegment(D_80044258++, 2, VIRTUAL_TO_PHYSICAL(D_80100000[D_80044254->cfbIdx]));
 }
 
 void func_800007D4(void) {
@@ -156,11 +156,11 @@ void func_80000800(void) {
 
     gDPFullSync(D_80044258++);
     gSPEndDisplayList(D_80044258++);
-    osWritebackDCache(&D_80044254->unk_00[D_80044254->unk_39C90], sizeof(Struct5));
+    osWritebackDCache(&D_80044254->unk_00[D_80044254->cfbIdx], sizeof(Struct5));
 
     task = &D_80027738[func_80002144(&gScheduler)];
-    task->osTask.t.data_ptr = D_80044254->unk_00[D_80044254->unk_39C90].unk_00;
-    task->osTask.t.data_size = (D_80044258 - D_80044254->unk_00[D_80044254->unk_39C90].unk_00) * sizeof(Gfx);
+    task->osTask.t.data_ptr = D_80044254->unk_00[D_80044254->cfbIdx].unk_00;
+    task->osTask.t.data_size = (D_80044258 - D_80044254->unk_00[D_80044254->cfbIdx].unk_00) * sizeof(Gfx);
     task->osTask.t.ucode_boot_size = (u32) rspbootTextEnd - (u32) rspbootTextStart;
     task->osTask.t.output_buff = D_80045270;
     task->osTask.t.output_buff_size = D_80045270 + sizeof(D_80045270);
@@ -176,8 +176,8 @@ void func_80000800(void);
 void func_80000954(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
     gDPPipeSync(D_80044258++);
     gDPSetCycleType(D_80044258++, G_CYC_FILL);
-    gDPSetColorImage(D_80044258++, G_IM_FMT_RGBA, D_80044254->unk_39C92, SCREEN_WIDTH,
-                     VIRTUAL_TO_PHYSICAL(D_80100000[D_80044254->unk_39C90]));
+    gDPSetColorImage(D_80044258++, G_IM_FMT_RGBA, D_80044254->bitDepth, SCREEN_WIDTH,
+                     VIRTUAL_TO_PHYSICAL(D_80100000[D_80044254->cfbIdx]));
     gDPSetFillColor(D_80044258++,
                     (GPACK_RGBA5551(arg0, arg1, arg2, arg3) << 16) | GPACK_RGBA5551(arg0, arg1, arg2, arg3));
     gDPFillRectangle(D_80044258++, 0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
@@ -188,8 +188,8 @@ void func_80000954(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
 void func_80000AD0(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
     gDPPipeSync(D_80044258++);
     gDPSetCycleType(D_80044258++, G_CYC_FILL);
-    gDPSetColorImage(D_80044258++, G_IM_FMT_RGBA, D_80044254->unk_39C92, SCREEN_WIDTH,
-                     VIRTUAL_TO_PHYSICAL(D_80100000[D_80044254->unk_39C90]));
+    gDPSetColorImage(D_80044258++, G_IM_FMT_RGBA, D_80044254->bitDepth, SCREEN_WIDTH,
+                     VIRTUAL_TO_PHYSICAL(D_80100000[D_80044254->cfbIdx]));
     gDPSetFillColor(D_80044258++,
                     (GPACK_RGBA5551(arg0, arg1, arg2, arg3) << 16) | GPACK_RGBA5551(arg0, arg1, arg2, arg3));
     gDPFillRectangle(D_80044258++, 0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
@@ -235,7 +235,7 @@ void func_80000DEC(void) {
     D_80044254 = D_80044240->data;
     func_80009B58();
     D_80044251 = 0;
-    D_80044254->unk_39C92 = 2;
+    D_80044254->bitDepth = 2;
     D_80044250 = 0;
 
     func_8000C4E0(D_80044260 = D_80044248->data, func_80001BFC, &D_80044250);
@@ -316,9 +316,75 @@ void func_8000126C(Mtx *m, float r, float p, float h, float s, float x, float y,
     guPosition(m, r, p, h, s, x, y, z);
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_800012BC.s")
+// TODO: argument type
+s32 func_800012BC(s32 arg0) {
+    func_80004DD4();
+    return 1;
+}
+// TODO: argument type
+s32 func_800012E0(s32 arg0) {
+    s32 a0;
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_800012E0.s")
+    a0 = 0;
+    for (i = 0; i < 4; i++) {
+        D_80044254->unk_00[D_80044254->cfbIdx].unk_1C810[i] = &D_80044254->unk_00[D_80044254->cfbIdx].unk_4000[a0];
+        a0 += D_800277F8[i];
+    }
+
+    if (!(D_80044254->flags & 0x8000)) {
+        func_800063E4();
+        func_80009C44();
+    }
+
+    if (D_80044254->unk_757F0 != NULL) {
+        if (D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840 == NULL) {
+            D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840 =
+                heap_alloc(&D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840, 0x2000 * sizeof(Gfx));
+        }
+        D_80044258 = (Gfx *) D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840->data;
+
+        func_800007D4();
+        D_80044254->unk_757F0();
+
+        gDPPipeSync(D_80044258++);
+        gSPEndDisplayList(D_80044258++);
+    } else {
+        if (D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840 != NULL) {
+            func_8000C28C(D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840);
+        }
+    }
+
+    D_80044258 = D_80044254->unk_00[D_80044254->cfbIdx].unk_00;
+    func_80000750();
+    func_800007D4();
+    if (D_80044254->flags & 1) {
+        func_80000C4C();
+    }
+    func_80001230();
+
+    if (!(D_80044254->flags & 0x8000)) {
+        for (i = 0; i < 4; i++) {
+            if (D_80044254->unk_39E20[D_800277E8[i]].unk_00 != 0) {
+                gSPDisplayList(D_80044258++, D_80044254->unk_00[D_80044254->cfbIdx].unk_1C820[D_800277E8[i]]);
+                gSPDisplayList(D_80044258++, D_80044254->unk_00[D_80044254->cfbIdx].unk_1C830[D_800277E8[i]]);
+                D_80044254->unk_00[D_80044254->cfbIdx].unk_1C800[i] = 0;
+            }
+        }
+    } else {
+        D_80044258 = func_800A7110(D_80044254->cfbIdx, D_80044258);
+    }
+
+    if (D_80044254->unk_757F0 != NULL && D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840 != NULL) {
+        gSPDisplayList(D_80044258++, (Gfx *) D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840->data);
+    }
+
+    func_80000800();
+    D_80044254->cfbIdx ^= 1;
+    return 1;
+}
+
+// split?
 
 #pragma GLOBAL_ASM("asm/nonmatchings/main/func_80001730.s")
 

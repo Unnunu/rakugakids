@@ -1,6 +1,13 @@
 #ifndef _COMMON_STRUCTS_H
 #define _COMMON_STRUCTS_H
 
+typedef struct HeapChunk {
+    /* 0x00 */ struct HeapChunk *next;
+    /* 0x04 */ void *data;
+    /* 0x08 */ s32 size;
+    /* 0x0C */ struct HeapChunk **unk_0C;
+} HeapChunk; // size = 0x10
+
 typedef struct ScTask {
     /* 0x00 */ s32 unk_00;
     /* 0x04 */ s32 unk_04;
@@ -68,8 +75,21 @@ typedef struct ScClient {
     /* 0x08 */ s32 mask;
 } ScClient; // size = 0x4
 
+// Gfx?
+typedef struct Struct5Sub1 {
+    /* 0x00 */ char unk_00[8];
+} Struct5Sub1; // size = 8
+
 typedef struct Struct5 {
-    /* 0x00000 */ Gfx unk_00[0x39C9];
+    /* 0x00000 */ Gfx unk_00[0x800];
+    /* 0x04000 */ Struct5Sub1 unk_4000[4];
+    /* 0x04020 */ char unk_4020[0x1C800 - 0x04020];
+    /* 0x1C800 */ s32 unk_1C800[4];
+    /* 0x1C810 */ Struct5Sub1 *unk_1C810[4];
+    /* 0x1C820 */ Gfx *unk_1C820[4];
+    /* 0x1C830 */ Gfx *unk_1C830[4];
+    /* 0x1C840 */ HeapChunk *unk_1C840;
+    /* 0x1C844 */ char unk_1C844[0xE48 - 0x844];
 } Struct5; // size = 0x1CE48
 
 typedef struct Struct4Sub1Sub {
@@ -78,7 +98,7 @@ typedef struct Struct4Sub1Sub {
     /* 0x03 */ u8 unk_03;
 } Struct4Sub1Sub; // size = 4
 
-typedef struct Struct4Sub1 {
+typedef struct InputData {
     /* 0x00 */ u16 unk_00;
     /* 0x02 */ u16 unk_02;
     /* 0x04 */ s16 unk_04;
@@ -89,19 +109,57 @@ typedef struct Struct4Sub1 {
     /* 0x0E */ s8 unk_0E;
     /* 0x0F */ s8 unk_0F;
     /* 0x10 */ Struct4Sub1Sub unk_10[20];
-} Struct4Sub1; // size = 0x60
+} InputData; // size = 0x60
+
+typedef struct Struct4Sub2 {
+    /* 0x00 */ s32 unk_00;
+    /* 0x04 */ s32 unk_04;
+    /* 0x08 */ f32 unk_08;
+    /* 0x0C */ s32 unk_0C;
+} Struct4Sub2; // size = 0x10
+
+typedef struct Struct4Sub3 {
+    /* 0x00 */ u16 unk_00;
+    /* 0x02 */ u16 unk_02;
+    /* 0x04 */ s32 unk_04;
+    /* 0x08 */ s32 unk_08;
+    /* 0x0C */ s32 unk_0C;
+    /* 0x10 */ s32 unk_10;
+    /* 0x14 */ f32 unk_14;
+    /* 0x18 */ char unk_18[0x74 - 0x18];
+} Struct4Sub3; // size = 0x74
+
+typedef struct Struct4Sub5 {
+    /* 0x00 */ u32 unk_00;
+    /* 0x04 */ struct Struct4Sub5 *unk_04;
+    /* 0x08 */ Struct4Sub2 *unk_08;
+    /* 0x0C */ u32 unk_0C;
+    /* 0x10 */ f32 unk_10;
+} Struct4Sub5; // size = 0x14
+
+typedef struct Struct4Sub4 {
+    /* 0x00 */ Struct4Sub5 *unk_00;
+    /* 0x04 */ s32 unk_04;
+} Struct4Sub4; // size = 0x8
 
 typedef struct Struct4 {
     /* 0x00000 */ Struct5 unk_00[2];
-    /* 0x39C90 */ s16 unk_39C90;
-    /* 0x39C92 */ u16 unk_39C92;
-    /* 0x39C94 */ s32 unk_39C94;
-    /* 0x39C98 */ u32 unk_39C98;
+    /* 0x39C90 */ s16 cfbIdx;
+    /* 0x39C92 */ u16 bitDepth;
+    /* 0x39C94 */ s32 flags;
+    /* 0x39C98 */ u32 frameCounter;
     /* 0x39C9C */ s16 unk_39C9C;
-    /* 0x39C9E */ Struct4Sub1 unk_39C9E[4];
-    /* 0x39E1E */ char unk_39E1E[0x76C78 - 0x39E1E];
+    /* 0x39C9E */ InputData inputs[4];
+    /* 0x39E1E */ char unk_39E1E[2]; // padding?
+    /* 0x39E20 */ Struct4Sub3 unk_39E20[4];
+    /* 0x39FF0 */ char unk_39FF0[0x757F0 - 0x39FF0];
+    /* 0x757F0 */ void (*unk_757F0)(void);
+    /* 0x757F4 */ Struct4Sub2 unk_757F4[0x40];
+    /* 0x75BF4 */ char unk_75BF4[0x768F8 - 0x75BF4];
+    /* 0x768F8 */ Struct4Sub4 unk_768F8[1];
+    /* 0x76900 */ char unk_76900[0x76C78 - 0x76900];
     /* 0x76C78 */ s32 unk_76C78;
-    /* 0x76C7C */ s32 unk_76C7C;
+    /* 0x76C7C */ u32 unk_76C7C;
     /* 0x76C80 */ s32 unk_76C80;
     /* 0x76C84 */ s32 unk_76C84;
     /* 0x76C88 */ s32 unk_76C88;
@@ -109,15 +167,19 @@ typedef struct Struct4 {
 } Struct4; // size = 0x80C90
 
 typedef struct Struct7 {
-    /* 0x00 */ char unk_00[0x1980];
+    /* 0x0000 */ void (*unk_00)(void);
+    /* 0x0004 */ u8 *unk_04;
+    /* 0x0008 */ s32 unk_08;
+    /* 0x000C */ s32 unk_0C;
+    /* 0x0010 */ struct Struct7 *unk_10;
+    /* 0x0014 */ struct Struct7 *unk_14;
+    /* 0x0018 */ s16 unk_18;
+    /* 0x001A */ s16 unk_1A;
+    /* 0x001C */ char unk_1C[0x189C - 0x1C];
+    /* 0x189C */ u8 unk_189C;
+    /* 0x189D */ u8 unk_189D[0xE0];
+    /* 0x197D */ u8 unk_197D;
 } Struct7; // size = 0x1980
-
-typedef struct HeapChunk {
-    /* 0x00 */ struct HeapChunk *next;
-    /* 0x04 */ void *data;
-    /* 0x08 */ s32 size;
-    /* 0x0C */ struct HeapChunk **unk_0C;
-} HeapChunk; // size = 0x10
 
 typedef struct AudioConfig {
     /* 0x00 */ s32 frequency;

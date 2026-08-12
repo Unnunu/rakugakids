@@ -1,11 +1,21 @@
 #include "common.h"
 
-#define INPUT_DIRECTION (U_JPAD | D_JPAD | L_JPAD | R_JPAD)
+typedef struct Struct6 {
+    /* 0x00 */ s32 unk_00;
+    /* 0x04 */ Struct4Sub5 *unk_04;
+} Struct6; // size >= 8
 
-extern OSMesgQueue D_8004F270;
-extern OSMesg D_8004F288[1];
-extern OSContStatus D_8004F290[MAXCONTROLLERS];
-extern OSContPad D_8004F2A0[MAXCONTROLLERS];
+const char string1[] = "DMA WAIT in romCopy\n";
+const char string2[] = "System Wowk";
+const char string3[] = "List";
+const char string4[] = "ObjList";
+const char string5[] = "FONT HEAP";
+const char string6[] = "ScDmaTrans Work";
+const char string7[] = "ScLzssDecode";
+const char string8[] = "ScHuffmanDecode";
+const char string9[] = "FontHeap";
+
+extern Struct6 *D_80044244;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800032B0.s")
 
@@ -25,182 +35,75 @@ extern OSContPad D_8004F2A0[MAXCONTROLLERS];
 
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800049AC.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004AC4.s")
-
-// split ??
-
-void func_80004C70(void) {
-    s16 i;
-    u8 bitpattern;
-
-    osCreateMesgQueue(&D_8004F270, D_8004F288, ARRAY_COUNT(D_8004F288));
-    osSetEventMesg(OS_EVENT_SI, &D_8004F270, (OSMesg) 0);
-    osContInit(&D_8004F270, &bitpattern, D_8004F290);
-
-    for (i = 0; i < MAXCONTROLLERS; i++) {
-        D_80044254->unk_39C9E[i].unk_00 = 0;
-        if ((bitpattern & (1 << i)) && !(D_8004F290[i].errno & (CONT_NO_RESPONSE_ERROR | CONT_OVERRUN_ERROR))) {
-            D_80044254->unk_39C9E[i].unk_00 |= 0x8000;
-        }
-    }
-}
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004D68.s")
-
 #ifdef NON_MATCHING
-void func_80004DD4(void) {
-    s32 i, j;
-    u8 a22;
-    u16 a12;
-    u16 v03;
-    Struct4Sub1 *p;
-    s32 v0;
+void func_80004AC4(void) {
+    s32 i;
+    Struct4Sub5 *v0;
+    Struct4Sub5 *a0;
+    Struct4Sub5 *a1;
+    Struct4Sub3 *v1;
+    Struct4Sub2 *a11;
+    f32 fv0;
+    s32 ft5;
 
-    if ((D_80044254->unk_39C98 % 5) == 0) {
-        osContStartQuery(&D_8004F270);
-        osRecvMesg(&D_8004F270, NULL, OS_MESG_BLOCK);
-        osContGetQuery(D_8004F290);
-
-        for (i = 0; i < MAXCONTROLLERS; i++) {
-            if (!(D_8004F290[i].errno & (CONT_NO_RESPONSE_ERROR | CONT_OVERRUN_ERROR))) {
-                D_80044254->unk_39C9E[i].unk_00 |= 0x8000;
-
-                if (D_8004F290[i].status & CONT_CARD_ON) {
-                    D_80044254->unk_39C9E[i].unk_00 |= 0x4000;
-                } else {
-                    D_80044254->unk_39C9E[i].unk_00 &= ~0x4000;
-                }
-
-                if (D_8004F290[i].status & CONT_CARD_PULL) {
-                    D_80044254->unk_39C9E[i].unk_00 |= 0x2000;
-                } else {
-                    D_80044254->unk_39C9E[i].unk_00 &= ~0x2000;
-                }
-            } else {
-                D_80044254->unk_39C9E[i].unk_00 &= ~0x8000;
-            }
-        }
+    v0 = D_80044244->unk_04;
+    v1 = &D_80044254->unk_39E20;
+    if (D_80044254->unk_757F0 != NULL) {
+        return;
     }
+    v0 = v0 + D_80044254->unk_76C7C;
 
-    osContStartReadData(&D_8004F270);
-    osRecvMesg(&D_8004F270, NULL, OS_MESG_BLOCK);
-    osContGetReadData(D_8004F2A0);
+    for (i = 0; i < 64; i++) {
+        a11 = &D_80044254->unk_757F4[i];
+        if (a11->unk_00 != 0 && D_80044254->unk_76C7C < 300) {
+            fv0 = a11->unk_08 - v1->unk_14;
+            ft5 = (s32) (111.0 - fv0 / -10.0);
 
-    for (i = 0, p = D_80044254->unk_39C9E; i < MAXCONTROLLERS; i++, p++) {
-        if (p->unk_00 & 0x8000) {
-            a22 = 0;
-            a12 = 0;
+            if (ft5 < 0 || ft5 >= 111) {
+                return;
+            }
+            v0->unk_00 = 3;
+            v0->unk_04 = 0;
+            v0->unk_08 = a11;
+            v0->unk_0C = 0;
+            v0->unk_10 = fv0;
 
-            p->unk_06 = D_8004F2A0[i].stick_x;
-            p->unk_08 = D_8004F2A0[i].stick_y;
+            if (D_80044254->unk_768F8[ft5].unk_00) {} // required to match
 
-            if (p->unk_00 & 0x800) {
-                if (p->unk_06 < -20) {
-                    a12 |= L_JPAD;
-                }
-                if (p->unk_06 > 20) {
-                    a12 |= R_JPAD;
-                }
-                if (p->unk_08 > 20) {
-                    a12 |= U_JPAD;
-                }
-                if (p->unk_08 < -20) {
-                    a12 |= D_JPAD;
-                }
+            a0 = D_80044254->unk_768F8[ft5].unk_00;
 
-                if (p->unk_06 < -50) {
-                    a22 |= 0x80;
+            if (a0 != NULL) {
+                a1 = D_80044254->unk_768F8[ft5].unk_00;
+                while (TRUE) {
+                    if (a0->unk_10 > fv0) {
+                        if (a0 == a1) {
+                            v0->unk_04 = a0;
+                            D_80044254->unk_768F8[ft5].unk_00 = v0;
+                        } else {
+                            v0->unk_04 = a1->unk_04;
+                            a1->unk_04 = v0;
+                        }
+                        break;
+                    } else {
+                        if (a0->unk_04 == NULL) {
+                            a0->unk_04 = v0;
+                            break;
+                        } else {
+                            a1 = a0;
+                            a0 = a0->unk_04;
+                        }
+                    }
                 }
-                if (p->unk_06 > 50) {
-                    a22 |= 0x80;
-                }
-                if (p->unk_08 > 50) {
-                    a22 |= 0x80;
-                }
-                if (p->unk_08 < -50) {
-                    a22 |= 0x80;
-                }
-
-                v03 = p->unk_0A;
             } else {
-                a12 = D_8004F2A0[i].button;
-                v03 = p->unk_02;
+                D_80044254->unk_768F8[ft5].unk_00 = v0;
             }
 
-            p->unk_10[0].unk_00 = v03;
-            if (p->unk_10[0].unk_02 ^ 0xFF) {
-                p->unk_10[0].unk_02++;
-            }
-            p->unk_10[0].unk_03 = a22;
-
-            v0 = (p->unk_02 & INPUT_DIRECTION) != (a12 & INPUT_DIRECTION);
-            if (v0) {
-                for (j = 18; j >= 0; j--) {
-                    p->unk_10[j + 1].unk_00 = p->unk_10[j].unk_00;
-                    p->unk_10[j + 1].unk_02 = p->unk_10[j].unk_02;
-                    p->unk_10[j + 1].unk_03 = p->unk_10[j].unk_03;
-                }
-
-                p->unk_10[0].unk_00 = 0;
-                p->unk_10[0].unk_02 = 0;
-                p->unk_10[0].unk_03 = 0;
-                p->unk_0E = 1;
-            }
-
-            a12 = 0;
-            if (p->unk_06 < -20) {
-                a12 |= L_JPAD;
-            }
-            if (p->unk_06 > 20) {
-                a12 |= R_JPAD;
-            }
-            if (p->unk_08 > 20) {
-                a12 |= U_JPAD;
-            }
-            if (p->unk_08 < -20) {
-                a12 |= D_JPAD;
-            }
-
-            p->unk_0C = (p->unk_0A ^ a12) & a12;
-            p->unk_0A = a12;
-
-            a12 = D_8004F2A0[i].button;
-            p->unk_04 = (p->unk_02 ^ a12) & a12;
-            p->unk_02 = a12;
+            v0++;
+            D_80044254->unk_76C7C++;
         }
     }
 }
 #else
-void func_80004DD4(void);
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004DD4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80004AC4.s")
+void func_80004AC4(void);
 #endif
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80005198.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800051BC.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800052B4.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_8000534C.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80005478.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_8000552C.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_8000560C.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800056E4.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800057B8.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800057D8.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800058A4.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800059D4.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800059F4.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80005B0C.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_80005C64.s")

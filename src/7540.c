@@ -103,3 +103,5 @@
 #pragma GLOBAL_ASM("asm/nonmatchings/7540/func_8000B7C8.s")
 
 #pragma GLOBAL_ASM("asm/nonmatchings/7540/func_8000BC70.s")
+
+#pragma GLOBAL_ASM("asm/nonmatchings/7540/D_8002EEE0.s")

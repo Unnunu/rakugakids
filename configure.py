@@ -242,6 +242,9 @@ def create_build_script(linker_entries: list[LinkerEntry], version: str):
                     if "ultralib/src/io/vimgr" in str(c_path):
                         opt_level = "-O2"
                         libultra_version = "-DBUILD_VERSION=VERSION_J"
+                    if "ultralib/src/io/vitbl" in str(c_path):
+                        opt_level = "-O2"
+                        libultra_version = "-DBUILD_VERSION=VERSION_J"
                     if "ultralib/src/io/pfsisplug" in str(c_path):
                         opt_level = "-O1"
                         

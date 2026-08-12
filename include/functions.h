@@ -26,5 +26,10 @@ void func_8000C7FC(Struct7 *, s32, s32, s32);
 void func_8000C864(Struct7 *);
 void func_80011230(void);
 HeapChunk *heap_alloc(HeapChunk **, s32);
+void func_80004DD4(void);
+void func_800063E4(void);
+void func_80009C44(void);
+void func_8000C28C(HeapChunk *);
+Gfx *func_800A7110(s32, Gfx *);
 
 #endif

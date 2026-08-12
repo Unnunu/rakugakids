@@ -1,6 +1,22 @@
 #include "common.h"
 
-#pragma GLOBAL_ASM("asm/nonmatchings/D0E0/func_8000C4E0.s")
+void func_8000C4E0(Struct7 *arg0, void (*arg1)(void), u8 *arg2) {
+    u32 i;
+
+    for (i = 0; i < 0xE0; i++) {
+        arg0->unk_189D[i] = 0xDF - i;
+    }
+    arg0->unk_189C = 0xE0;
+    arg0->unk_197D = 0;
+
+    arg0->unk_10 = arg0;
+    arg0->unk_14 = arg0;
+
+    arg0->unk_00 = arg1;
+    arg0->unk_04 = arg2;
+    arg0->unk_0C = 0x38000;
+    arg0->unk_1A = 0;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/D0E0/func_8000C54C.s")
 

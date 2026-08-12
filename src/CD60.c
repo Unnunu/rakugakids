@@ -1,7 +1,5 @@
 #include "common.h"
 
-void func_8000C28C(HeapChunk *);
-
 #ifdef NON_MATCHING
 HeapChunk *heap_alloc(HeapChunk **arg0, s32 size) {
     HeapChunk *a0;
