@@ -83,7 +83,7 @@ void func_80000DEC(void);
 
 s32 func_800012BC(s32);
 s32 func_800012E0(s32);
-void func_80001820(void);
+void func_80001820(s32);
 
 void main(void) {
     osInitialize();
@@ -227,14 +227,14 @@ void func_80000DEC(void) {
     D_80044230.next = NULL;
     D_8002A2D0 = &D_80044230;
     D_80044240 = heap_alloc(&D_80044240, sizeof(Struct4));
-    D_80044248 = heap_alloc(&D_80044248, sizeof(Struct7));
-    D_8004424C = heap_alloc(&D_8004424C, sizeof(Struct7));
+    D_80044248 = heap_alloc(&D_80044248, sizeof(TaskManager));
+    D_8004424C = heap_alloc(&D_8004424C, sizeof(TaskManager));
     mem_clear(D_80044240->data, sizeof(Struct4));
-    mem_clear(D_80044248->data, sizeof(Struct7));
-    mem_clear(D_8004424C->data, sizeof(Struct7));
+    mem_clear(D_80044248->data, sizeof(TaskManager));
+    mem_clear(D_8004424C->data, sizeof(TaskManager));
     D_80044254 = D_80044240->data;
     func_80009B58();
-    D_80044251 = 0;
+    D_80044251 = FALSE;
     D_80044254->bitDepth = 2;
     D_80044250 = 0;
 
@@ -384,12 +384,52 @@ s32 func_800012E0(s32 arg0) {
     return 1;
 }
 
-// split?
+void load_overlay(Overlay *ovl) {
+    OSMesg mesg = NULL;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_80001730.s")
+    D_80044251 = TRUE;
+    func_80002B64(&gScheduler, ovl->romStart, ovl->vramAddr, ovl->romEnd - ovl->romStart, 0, 0, &D_80035F78);
+    osRecvMesg(&D_80035F78, &mesg, OS_MESG_BLOCK);
+    D_80044251 = FALSE;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_800017CC.s")
+    if (ovl->initFunc != NULL) {
+        func_8000C54C(D_80044260, 200, ovl->initFunc, NULL);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_800017F4.s")
+void func_800017CC(void) {
+    D_80044254->flags |= 0x1000;
+}
 
+void func_800017F4(void) {
+    D_80044254->flags &= ~0x1000;
+}
+
+#if 0
+// TODO: argument type
+void func_80001820(s32 arg0) {
+    Struct7 *v1;
+    if (!(D_80044254->flags & 0x1000) && (D_80044254->flags & 0x2000)) {
+        v1 = D_80044260;
+        while (TRUE) {
+            v1 = v1->unk_10;
+            if (v1->unk_0C & 0x20000) {
+                break;
+            }
+            v1->unk_0C &= ~0x84000;
+        }
+
+        v1 = D_80044260;
+        while (TRUE) {
+            v1 = v1->unk_10;
+            if (v1->unk_0C & 0x20000) {
+                break;
+            }
+            v1->unk_0C &= ~0x84000;
+            v1->unk_04
+        }
+    } else {
+    }
+}
+#endif
 #pragma GLOBAL_ASM("asm/nonmatchings/main/func_80001820.s")

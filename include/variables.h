@@ -15,8 +15,8 @@ extern u8 D_80044250;
 extern u8 D_80044251;
 extern Struct4 *D_80044254;
 extern Gfx *D_80044258;
-extern Struct7 *D_80044260;
-extern Struct7 *D_80044264;
+extern TaskManager *D_80044260;
+extern TaskManager *D_80044264;
 extern HeapChunk *D_80044268;
 extern u8 D_80044270[];
 extern u8 D_80045270[0xA000];
@@ -27,5 +27,12 @@ extern u8 D_8014B000[];
 extern u8 D_3D6500[];
 
 extern u8 D_800255A0[];
+
+extern u8 D_80028998[];
+extern u8 D_80028968[];
+extern u8 D_80029CB8[];
+extern u8 D_80029CC4[];
+extern u8 D_800296D0[];
+extern u8 D_8002994C[];
 
 #endif

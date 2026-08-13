@@ -148,7 +148,8 @@ typedef struct Struct4 {
     /* 0x39C92 */ u16 bitDepth;
     /* 0x39C94 */ s32 flags;
     /* 0x39C98 */ u32 frameCounter;
-    /* 0x39C9C */ s16 unk_39C9C;
+    /* 0x39C9C */ u8 unk_39C9C;
+    /* 0x39C9D */ s8 unk_39C9D;
     /* 0x39C9E */ InputData inputs[4];
     /* 0x39E1E */ char unk_39E1E[2]; // padding?
     /* 0x39E20 */ Struct4Sub3 unk_39E20[4];
@@ -166,25 +167,36 @@ typedef struct Struct4 {
     /* 0x76C8C */ char unk_76C8C[0x80C90 - 0x76C8C];
 } Struct4; // size = 0x80C90
 
-typedef struct Struct7 {
-    /* 0x0000 */ void (*unk_00)(void);
-    /* 0x0004 */ u8 *unk_04;
-    /* 0x0008 */ s32 unk_08;
-    /* 0x000C */ s32 unk_0C;
-    /* 0x0010 */ struct Struct7 *unk_10;
-    /* 0x0014 */ struct Struct7 *unk_14;
-    /* 0x0018 */ s16 unk_18;
-    /* 0x001A */ s16 unk_1A;
-    /* 0x001C */ char unk_1C[0x189C - 0x1C];
+typedef struct Task {
+    /* 0x00 */ void (*unk_00)(s32);
+    /* 0x00 */ u8 *unk_04;
+    /* 0x08 */ HeapChunk *unk_08;
+    /* 0x0C */ s32 unk_0C;
+    /* 0x10 */ struct Task *next;
+    /* 0x14 */ struct Task *prev;
+    /* 0x18 */ u16 unk_18;
+    /* 0x1A */ u16 priority;
+} Task; // size = 0x1C
+
+typedef struct TaskManager {
+    /* 0x0000 */ Task unk_00;
+    /* 0x001C */ Task unk_1C[0xE0];
     /* 0x189C */ u8 unk_189C;
     /* 0x189D */ u8 unk_189D[0xE0];
-    /* 0x197D */ u8 unk_197D;
-} Struct7; // size = 0x1980
+    /* 0x197D */ u8 numTasks;
+} TaskManager; // size = 0x1980
 
 typedef struct AudioConfig {
     /* 0x00 */ s32 frequency;
     /* 0x04 */ u32 freqMultiplier;
     /* 0x08 */ s32 maxCommands;
 } AudioConfig; // size >= 0xC
+
+typedef struct Overlay {
+    /* 0x00 */ s32 romStart;
+    /* 0x04 */ s32 romEnd;
+    /* 0x08 */ s32 vramAddr;
+    /* 0x0C */ s32 (*initFunc)(s32);
+} Overlay; // size = 0x10
 
 #endif

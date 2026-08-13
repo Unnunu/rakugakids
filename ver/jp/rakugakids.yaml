@@ -68,7 +68,8 @@ segments:
     bss_size: 0x77500
     subsegments:
       - [0x1060, c, main]
-      - [0x25E0, c]
+      - [0x25E0, c, overlay]
+      - [0x2A10, pad]
       - [0x2A20, c, scheduler]
       - [0x3EB0, c]
       - [0x5870, c]
@@ -243,7 +244,8 @@ segments:
 
 
       - [0x28330, .data, main]
-      - [0x28410, data]
+      - [0x28410, .data, overlay]
+      - [0x28450, data]
 
       - [0x2E300, .data, ../ultralib/src/audio/sl]
       - [0x2E310, .data, ../ultralib/src/os/exceptasm]
@@ -312,9 +314,58 @@ segments:
       - { type: .bss, vram: 0x800A5CF0, name: ../ultralib/src/io/pfsisplug }
       - { type: .bss, vram: 0x800A5D30, name: ../ultralib/src/io/vimgr }
 
+  - name: ovl2
+    type: code
+    dir: ovl2
+    start: 0x30650
+    vram: 0x800A6F50
+    bss_size: 0x350
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 1
+    subsegments:
+      - [0x30650, c]
+      - [0x31950, data]
+      - [0x3BE50, .rodata, 30650]
+      - { type: bss, vram: 0x800B2770, name: bss1 }
+
+  - name: ovl3
+    type: code
+    dir: ovl3
+    start: 0x3BE70
+    vram: 0x800A6F50
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 2
+    subsegments:
+      - [0x3BE70, c]
+      - [0x3D020, c]
+      - [0x3D670, c]
+      - [0x3DCA0, c]
+      - [0x3E8F0, c]
+      - [0x3F250, data]
+      - [0x40C10, .rodata, 3E8F0]
+      - { type: bss, vram: 0x800ABD00, name: bss1 }
 
   - type: bin
-    start: 0x30650
+    start: 0x40C20
+    follows_vram: main
+
+  - name: ovl1
+    type: code
+    dir: ovl1
+    start: 0xCC760
+    vram: 0x800A6F50
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 3
+    subsegments:
+      - [0xCC760, c]
+      - [0xCE0F0, data]
+      - [0xCE4F0, .rodata, CC760]
+      - { type: bss, vram: 0x800A8CF0, name: bss1 }
+
+  - type: bin
+    start: 0xCE500
     follows_vram: main
 
   - [0xC00000]
