@@ -113,7 +113,8 @@ typedef struct InputData {
 
 typedef struct Struct4Sub2 {
     /* 0x00 */ s32 unk_00;
-    /* 0x04 */ s32 unk_04;
+    /* 0x04 */ s16 unk_04;
+    /* 0x06 */ s16 unk_06;
     /* 0x08 */ f32 unk_08;
     /* 0x0C */ s32 unk_0C;
 } Struct4Sub2; // size = 0x10

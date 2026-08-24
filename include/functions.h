@@ -1,6 +1,7 @@
 #ifndef _FUNCTIONS_H
 #define _FUNCTIONS_H
 
+void func_80000AD0(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
 void mem_clear(void *arg0, s32 arg1);
 void func_80000D1C(s32 romAddr, void *vramAddr, s32 size);
 void func_800108F0(ALSynConfig *synConfig, s32 arg1, AudioConfig *arg2);

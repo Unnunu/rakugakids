@@ -76,7 +76,7 @@ segments:
       - [0x6960, c]
       - [0x7540, c]
       - [0xCD50, c]
-      - [0xCD60, c]
+      - [0xCD60, c, heap]
       - [0xD0E0, c]
       - [0xDEA0, c]
       - [0xE9D0, c]
@@ -347,9 +347,105 @@ segments:
       - [0x40C10, .rodata, 3E8F0]
       - { type: bss, vram: 0x800ABD00, name: bss1 }
 
-  - type: bin
+  - name: ovl3A
+    type: code
+    dir: ovl3A
     start: 0x40C20
-    follows_vram: main
+    vram: 0x800ACB90
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 3a
+    subsegments:
+      - [0x40C20, c]
+      - [0x434C0, c]
+      - [0x44400, data]
+      - [0x44660, rodata]
+      - [0x44720, rodata]
+      - { type: bss, vram: 0x800B1550, name: bss1 }
+
+  - name: ovl3B
+    type: code
+    dir: ovl3B
+    start: 0x455E0
+    vram: 0x800ACB90
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 3b
+    subsegments:
+      - [0x455E0, asm]
+      - [0x45960, asm]
+      - [0x46E00, asm]
+      - [0x48ED0, asm]
+      - [0x4DF00, data]
+      - { type: bss, vram: 0x800B7BF0, name: bss1 }
+
+  - name: ovl3C
+    type: code
+    dir: ovl3C
+    start: 0x50640
+    vram: 0x800ACB90
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 3c
+    subsegments:
+      - [0x50640, asm]
+      - { type: bss, vram: 0x800B8AE0, name: bss1 }
+
+  - name: ovl3D
+    type: code
+    dir: ovl3D
+    start: 0x5C590
+    vram: 0x800ACB90
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 3d
+    subsegments:
+      - [0x5C590, asm]
+      - { type: bss, vram: 0x800AF8B0, name: bss1 }
+
+  - name: ovl3E
+    type: code
+    dir: ovl3E
+    start: 0x5F2B0
+    vram: 0x800ACB90
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 3e
+    subsegments:
+      - [0x5F2B0, asm]
+      - [0x62420, asm]
+      - [0x6AF80, asm]
+      - [0x6D4B0, asm]
+      - [0x6FF20, asm]
+      - [0x72500, asm]
+      - [0x76C80, asm]
+      - [0x7C440, asm]
+      - [0x7CAD0, asm]
+      - [0x7DA10, asm]
+      - [0x806C0, asm]
+      - [0x80AE0, asm]
+      - [0x81460, asm]
+      - [0x817F0, data]
+      - [0x81800, data]
+      - { type: bss, vram: 0x800D2260, name: bss1 }
+
+  - name: ovl3F
+    type: code
+    dir: ovl3F
+    start: 0x84980
+    vram: 0x800ACB90
+    bss_size: 0x100000
+    symbol_name_format: $VRAM_$ROM
+    exclusive_ram_id: 3f
+    subsegments:
+      - [0x84980, asm]
+      - [0x86A20, asm]
+      - [0x88DF0, data]
+      - [0x8AB30, data]
+      - { type: bss, vram: 0x800B3820, name: bss1 }
+
+  - type: bin
+    start: 0x8B610
 
   - name: ovl1
     type: code

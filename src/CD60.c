@@ -52,7 +52,7 @@ HeapChunk *heap_alloc(HeapChunk **arg0, s32 size) {
     return a0;
 }
 #else
-#pragma GLOBAL_ASM("asm/nonmatchings/CD60/heap_alloc.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/heap/heap_alloc.s")
 HeapChunk *heap_alloc(HeapChunk **arg0, s32 arg1);
 #endif
 
@@ -79,8 +79,8 @@ void func_8000C28C(HeapChunk *arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/CD60/func_8000C2E0.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/heap/func_8000C2E0.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/CD60/func_8000C370.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/heap/func_8000C370.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/CD60/func_8000C3A4.s")
+#pragma GLOBAL_ASM("asm/nonmatchings/heap/func_8000C3A4.s")

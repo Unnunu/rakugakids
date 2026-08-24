@@ -70,7 +70,8 @@ __libm_qnan_f = 0x8002F360;
 __osContLastCmd = 0x800A4590;
 __osThreadSave = 0x800A4610;
 __osPfsPifRam = 0x800A5CF0;
-
+osMapTLB = 0x800177F0;
+osUnmapTLB = 0x80020DC0;
 
 
 mem_clear = 0x80001040;
