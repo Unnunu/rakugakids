@@ -101,7 +101,7 @@ typedef struct Struct4Sub1Sub {
 typedef struct InputData {
     /* 0x00 */ u16 unk_00;
     /* 0x02 */ u16 unk_02;
-    /* 0x04 */ s16 unk_04;
+    /* 0x04 */ u16 unk_04;
     /* 0x06 */ s16 unk_06;
     /* 0x08 */ s16 unk_08;
     /* 0x0A */ u16 unk_0A;
@@ -149,7 +149,7 @@ typedef struct Struct4 {
     /* 0x39C94 */ s32 flags;
     /* 0x39C98 */ u32 frameCounter;
     /* 0x39C9C */ u8 unk_39C9C;
-    /* 0x39C9D */ s8 unk_39C9D;
+    /* 0x39C9D */ u8 unk_39C9D;
     /* 0x39C9E */ InputData inputs[4];
     /* 0x39E1E */ char unk_39E1E[2]; // padding?
     /* 0x39E20 */ Struct4Sub3 unk_39E20[4];

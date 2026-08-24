@@ -13,6 +13,8 @@ ARRAY_COUNT = "int"
 ARRAY_COUNTU = "int"
 CLAMP = "int"
 NULL = "int"
+FR_POS_FRUSTRATIO_3 = "int"
+FR_NEG_FRUSTRATIO_3 = "int"
 
 [decompme.compilers]
-"tools/ido5.3/cc" = "ido5.3"
+"tools/ido7.1/cc" = "ido7.1"

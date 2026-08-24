@@ -325,8 +325,9 @@ segments:
     subsegments:
       - [0x30650, c]
       - [0x31950, data]
+      - [0x3BDA0, .data, 30650]
       - [0x3BE50, .rodata, 30650]
-      - { type: bss, vram: 0x800B2770, name: bss1 }
+      - { type: .bss, vram: 0x800B2770, name: 30650 }
 
   - name: ovl3
     type: code
