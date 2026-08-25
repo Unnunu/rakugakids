@@ -74,10 +74,11 @@ segments:
       - [0x3EB0, c]
       - [0x5870, c]
       - [0x6960, c]
+      - [0x6E00, c, camera]
       - [0x7540, c]
       - [0xCD50, c]
       - [0xCD60, c, heap]
-      - [0xD0E0, c]
+      - [0xD0E0, c, task]
       - [0xDEA0, c]
       - [0xE9D0, c]
       - [0xF490, c]
@@ -246,6 +247,8 @@ segments:
       - [0x28330, .data, main]
       - [0x28410, .data, overlay]
       - [0x28450, data]
+      - [0x2A940, .data, camera]
+      - [0x2AB30, data]
 
       - [0x2E300, .data, ../ultralib/src/audio/sl]
       - [0x2E310, .data, ../ultralib/src/os/exceptasm]
@@ -372,10 +375,10 @@ segments:
     symbol_name_format: $VRAM_$ROM
     exclusive_ram_id: 3b
     subsegments:
-      - [0x455E0, asm]
-      - [0x45960, asm]
-      - [0x46E00, asm]
-      - [0x48ED0, asm]
+      - [0x455E0, c]
+      - [0x45960, c]
+      - [0x46E00, c]
+      - [0x48ED0, c]
       - [0x4DF00, data]
       - { type: bss, vram: 0x800B7BF0, name: bss1 }
 
@@ -388,7 +391,8 @@ segments:
     symbol_name_format: $VRAM_$ROM
     exclusive_ram_id: 3c
     subsegments:
-      - [0x50640, asm]
+      - [0x50640, c]
+      - [0x58460, data]
       - { type: bss, vram: 0x800B8AE0, name: bss1 }
 
   - name: ovl3D
@@ -400,7 +404,8 @@ segments:
     symbol_name_format: $VRAM_$ROM
     exclusive_ram_id: 3d
     subsegments:
-      - [0x5C590, asm]
+      - [0x5C590, c]
+      - [0x5EA50, data]
       - { type: bss, vram: 0x800AF8B0, name: bss1 }
 
   - name: ovl3E
@@ -412,19 +417,19 @@ segments:
     symbol_name_format: $VRAM_$ROM
     exclusive_ram_id: 3e
     subsegments:
-      - [0x5F2B0, asm]
-      - [0x62420, asm]
-      - [0x6AF80, asm]
-      - [0x6D4B0, asm]
-      - [0x6FF20, asm]
-      - [0x72500, asm]
-      - [0x76C80, asm]
-      - [0x7C440, asm]
-      - [0x7CAD0, asm]
-      - [0x7DA10, asm]
-      - [0x806C0, asm]
-      - [0x80AE0, asm]
-      - [0x81460, asm]
+      - [0x5F2B0, c]
+      - [0x62420, c]
+      - [0x6AF80, c]
+      - [0x6D4B0, c]
+      - [0x6FF20, c]
+      - [0x72500, c]
+      - [0x76C80, c]
+      - [0x7C440, c]
+      - [0x7CAD0, c]
+      - [0x7DA10, c]
+      - [0x806C0, c]
+      - [0x80AE0, c]
+      - [0x81460, c]
       - [0x817F0, data]
       - [0x81800, data]
       - { type: bss, vram: 0x800D2260, name: bss1 }
@@ -438,8 +443,8 @@ segments:
     symbol_name_format: $VRAM_$ROM
     exclusive_ram_id: 3f
     subsegments:
-      - [0x84980, asm]
-      - [0x86A20, asm]
+      - [0x84980, c]
+      - [0x86A20, c]
       - [0x88DF0, data]
       - [0x8AB30, data]
       - { type: bss, vram: 0x800B3820, name: bss1 }

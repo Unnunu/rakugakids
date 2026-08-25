@@ -1,4 +1,5 @@
 #include "common.h"
+#include "task.h"
 
 typedef struct Struct1 {
     /* 0x00 */ s16 unk_00;
@@ -81,9 +82,9 @@ void func_800004BC(void *);
 void func_80000550(void *);
 void func_80000DEC(void);
 
-s32 func_800012BC(s32);
-s32 func_800012E0(s32);
-void func_80001820(s32);
+s32 func_800012BC(Task *);
+s32 func_800012E0(Task *);
+s32 func_80001820(Task *);
 
 void main(void) {
     osInitialize();
@@ -126,7 +127,7 @@ void func_80000550(void *arg) {
                 D_80044254->frameCounter++;
                 if (D_80044254->unk_76C78 == 0) {
                     if (func_80002888(&gScheduler) < 2U) {
-                        func_8000C864(D_80044260);
+                        task_run_all(D_80044260);
                     }
                 } else {
                     D_80044254->unk_76C78--;
@@ -215,7 +216,7 @@ void func_80000D1C(s32 romAddr, void *vramAddr, s32 size) {
     osInvalICache(vramAddr, size);
 
     while (osPiGetStatus() != 0) {}
-    osPiStartDma(&D_80037460, 0, OS_READ, romAddr, vramAddr, size, &D_80035F78);
+    osPiStartDma(&D_80037460, OS_MESG_PRI_NORMAL, OS_READ, romAddr, vramAddr, size, &D_80035F78);
     while (sp34 == 0) {
         osRecvMesg(&D_80035F78, &sp34, OS_MESG_NOBLOCK);
     }
@@ -226,9 +227,9 @@ void func_80000DEC(void) {
     D_80044268 = D_8014B000;
     D_80044230.next = NULL;
     D_8002A2D0 = &D_80044230;
-    D_80044240 = heap_alloc(&D_80044240, sizeof(Struct4));
-    D_80044248 = heap_alloc(&D_80044248, sizeof(TaskManager));
-    D_8004424C = heap_alloc(&D_8004424C, sizeof(TaskManager));
+    D_80044240 = mem_alloc(&D_80044240, sizeof(Struct4));
+    D_80044248 = mem_alloc(&D_80044248, sizeof(TaskManager));
+    D_8004424C = mem_alloc(&D_8004424C, sizeof(TaskManager));
     mem_clear(D_80044240->data, sizeof(Struct4));
     mem_clear(D_80044248->data, sizeof(TaskManager));
     mem_clear(D_8004424C->data, sizeof(TaskManager));
@@ -238,13 +239,13 @@ void func_80000DEC(void) {
     D_80044254->bitDepth = 2;
     D_80044250 = 0;
 
-    func_8000C4E0(D_80044260 = D_80044248->data, func_80001BFC, &D_80044250);
-    func_8000C4E0(D_80044264 = D_8004424C->data, func_800083BC, NULL);
+    task_manager_init(D_80044260 = D_80044248->data, func_80001BFC, &D_80044250);
+    task_manager_init(D_80044264 = D_8004424C->data, func_800083BC, NULL);
 
-    func_8000C7FC(D_80044260, func_8000C54C(D_80044260, 250, func_800012BC, &D_80044250), 0x8000, 1);
-    func_8000C54C(D_80044260, 200, func_800019E0, &D_80044250);
-    func_8000C7FC(D_80044260, func_8000C54C(D_80044260, 20, func_800012E0, &D_80044250), 0x8000, 1);
-    func_8000C7FC(D_80044260, func_8000C54C(D_80044260, 5, func_80001820, NULL), 0x8000, 1);
+    task_set_flags(D_80044260, task_create(D_80044260, 250, func_800012BC, &D_80044250), TASK_FLAG_UNPAUSABLE, TRUE);
+    task_create(D_80044260, 200, func_800019E0, &D_80044250);
+    task_set_flags(D_80044260, task_create(D_80044260, 20, func_800012E0, &D_80044250), TASK_FLAG_UNPAUSABLE, TRUE);
+    task_set_flags(D_80044260, task_create(D_80044260, 5, func_80001820, NULL), TASK_FLAG_UNPAUSABLE, TRUE);
 
     osUnmapTLBAll();
 
@@ -316,13 +317,12 @@ void func_8000126C(Mtx *m, float r, float p, float h, float s, float x, float y,
     guPosition(m, r, p, h, s, x, y, z);
 }
 
-// TODO: argument type
-s32 func_800012BC(s32 arg0) {
+s32 func_800012BC(Task *task) {
     func_80004DD4();
-    return 1;
+    return TASK_CONTINUE;
 }
-// TODO: argument type
-s32 func_800012E0(s32 arg0) {
+
+s32 func_800012E0(Task *task) {
     s32 a0;
     s32 i;
 
@@ -340,7 +340,7 @@ s32 func_800012E0(s32 arg0) {
     if (D_80044254->unk_757F0 != NULL) {
         if (D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840 == NULL) {
             D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840 =
-                heap_alloc(&D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840, 0x2000 * sizeof(Gfx));
+                mem_alloc(&D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840, 0x2000 * sizeof(Gfx));
         }
         D_80044258 = (Gfx *) D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840->data;
 
@@ -351,7 +351,7 @@ s32 func_800012E0(s32 arg0) {
         gSPEndDisplayList(D_80044258++);
     } else {
         if (D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840 != NULL) {
-            func_8000C28C(D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840);
+            mem_free(D_80044254->unk_00[D_80044254->cfbIdx].unk_1C840);
         }
     }
 
@@ -365,7 +365,7 @@ s32 func_800012E0(s32 arg0) {
 
     if (!(D_80044254->flags & 0x8000)) {
         for (i = 0; i < 4; i++) {
-            if (D_80044254->unk_39E20[D_800277E8[i]].unk_00 != 0) {
+            if (D_80044254->cameras[D_800277E8[i]].id != 0) {
                 gSPDisplayList(D_80044258++, D_80044254->unk_00[D_80044254->cfbIdx].unk_1C820[D_800277E8[i]]);
                 gSPDisplayList(D_80044258++, D_80044254->unk_00[D_80044254->cfbIdx].unk_1C830[D_800277E8[i]]);
                 D_80044254->unk_00[D_80044254->cfbIdx].unk_1C800[i] = 0;
@@ -381,7 +381,7 @@ s32 func_800012E0(s32 arg0) {
 
     func_80000800();
     D_80044254->cfbIdx ^= 1;
-    return 1;
+    return TASK_CONTINUE;
 }
 
 void load_overlay(Overlay *ovl) {
@@ -392,8 +392,8 @@ void load_overlay(Overlay *ovl) {
     osRecvMesg(&D_80035F78, &mesg, OS_MESG_BLOCK);
     D_80044251 = FALSE;
 
-    if (ovl->initFunc != NULL) {
-        func_8000C54C(D_80044260, 200, ovl->initFunc, NULL);
+    if (ovl->runFunc != NULL) {
+        task_create(D_80044260, 200, ovl->runFunc, NULL);
     }
 }
 
@@ -407,7 +407,7 @@ void func_800017F4(void) {
 
 #if 0
 // TODO: argument type
-void func_80001820(s32 arg0) {
+s32 func_80001820(Task* arg0) {
     Struct7 *v1;
     if (!(D_80044254->flags & 0x1000) && (D_80044254->flags & 0x2000)) {
         v1 = D_80044260;

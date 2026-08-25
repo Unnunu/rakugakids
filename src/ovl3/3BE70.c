@@ -5,7 +5,7 @@ extern s32 D_800AB448_40368;
 extern Overlay D_800AB4B8_403D8[];
 extern s32 D_800ACA08_41928;
 
-s32 func_800A7790_3C6B0(s32);
+s32 func_800A7790_3C6B0(Task *);
 void func_800A7B1C_3CA3C(void);
 
 #pragma GLOBAL_ASM("asm/nonmatchings/ovl3/3BE70/func_800A6F50_3BE70.s")
@@ -19,7 +19,7 @@ void func_800A7670_3C590(s32 arg0) {
     }
 }
 
-s32 func_800A76BC_3C5DC(s32 arg0) {
+s32 func_800A76BC_3C5DC(Task *arg0) {
     switch (D_800AB534_40454) {
         case 0:
             D_800AB448_40368 = 0;
@@ -34,12 +34,12 @@ s32 func_800A76BC_3C5DC(s32 arg0) {
             break;
         case 2:
             load_overlay(&D_800AB4B8_403D8[0]);
-            func_8000C54C(D_80044260, 198, func_800A7790_3C6B0, NULL);
+            task_create(D_80044260, 198, func_800A7790_3C6B0, NULL);
             D_800AB534_40454 = 3;
-            return 0;
+            return TASK_DONE;
     }
 
-    return 1;
+    return TASK_CONTINUE;
 }
 
 #pragma GLOBAL_ASM("asm/nonmatchings/ovl3/3BE70/func_800A7790_3C6B0.s")

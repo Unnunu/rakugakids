@@ -1,5 +1,18 @@
 #include "common.h"
 
+typedef struct Struct10 {
+    /* 0x00 */ OSIoMesg unk_00;
+    /* 0x18 */ OSMesgQueue unk_18;
+    /* 0x30 */ OSMesg unk_30[1];
+    /* 0x34 */ OSMesgQueue *unk_34;
+    /* 0x38 */ u16 unk_38;
+    /* 0x3A */ u16 unk_3A;
+    /* 0x3C */ u32 unk_3C;
+    /* 0x40 */ s32 unk_40;
+    /* 0x44 */ s32 unk_44;
+    /* 0x48 */ u16 unk_48;
+} Struct10; // size ?
+
 /* .bss */
 
 Scheduler gScheduler;
@@ -20,8 +33,9 @@ void sched_event_loop(Scheduler *);
 void sched_audio_rsp_loop(Scheduler *);
 void sched_gfx_rsp_loop(Scheduler *);
 void func_8000276C(Scheduler *);
-void func_80002938(void *);
+void func_80002938(Scheduler *);
 void func_80002D50(void *);
+void func_80002C94(Struct10 *arg0);
 
 void sched_init(Scheduler *arg0, u8 videoMode, u8 retraceCount) {
 
@@ -307,17 +321,126 @@ void func_80002928(Scheduler *arg0) {
     arg0->unk_1484 += 2;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002938.s")
+void func_80002938(Scheduler *arg0) {
+    s32 s0;
+    u8 *sp48;
+    Struct10 *sp44;
+    s32 pad;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002B64.s")
+    sp48 = NULL;
+    s0 = 0;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002C94.s")
+    while (TRUE) {
+        osRecvMesg(&arg0->unk_7C, (OSMesg *) &sp44, OS_MESG_BLOCK);
+        sp48 = NULL;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002D28.s")
+        if (sp44->unk_38 & 1) {
+            func_80002C94(sp44);
+            s0++;
+            osRecvMesg(&sp44->unk_18, (OSMesg *) &sp48, OS_MESG_BLOCK);
+        } else {
+            if (!(sp44->unk_38 & 0x8000)) {
+                func_80002C94(sp44);
+                s0++;
+            }
+            osRecvMesg(&sp44->unk_18, (OSMesg *) &sp48, OS_MESG_NOBLOCK);
+        }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002D30.s")
+        if (sp48 != NULL) {
+            s0--;
+            sp44->unk_3C -= sp44->unk_3A;
+            if (sp44->unk_3C != 0) {
+                sp44->unk_38 &= ~0x8000;
+                sp44->unk_44 += sp44->unk_3A;
+                sp44->unk_40 += sp44->unk_3A;
+                if (sp44->unk_3A > sp44->unk_3C) {
+                    sp44->unk_3A = sp44->unk_3C;
+                }
+            } else {
+                sp44->unk_38 |= 0x4000;
+            }
+        }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002D40.s")
+        if (sp44->unk_38 & 0x4000) {
+            if (sp44->unk_34 != NULL) {
+                osSendMesg(sp44->unk_34, (OSMesg) 801, OS_MESG_BLOCK);
+            }
+            mem_free(arg0->unk_E74[sp44->unk_48]);
+        }
+
+        if (!(sp44->unk_38 & 0x4000)) {
+            if (sp44->unk_38 & 1) {
+                osJamMesg(&arg0->unk_7C, (OSMesg) sp44, OS_MESG_BLOCK);
+            } else {
+                osSendMesg(&arg0->unk_7C, (OSMesg) sp44, OS_MESG_BLOCK);
+            }
+        } else if (s0 == 0) {
+            arg0->unk_1490 = 0;
+        }
+    }
+}
+
+s32 func_80002B64(Scheduler *arg0, s32 arg1, s32 arg2, s32 arg3, u16 arg4, u16 arg5, OSMesgQueue *arg6) {
+    Struct10 *s0;
+    s32 pad;
+    s32 i;
+    OSIntMask mask;
+
+    mask = osSetIntMask(OS_IM_NONE);
+
+    for (i = 0; i < 64; i++) {
+        if (arg0->unk_E74[i] == NULL) {
+            break;
+        }
+    }
+    if (i == 64) {
+        return 0;
+    }
+
+    arg0->unk_E74[i] = mem_alloc(&arg0->unk_E74[i], sizeof(Struct10));
+    s0 = (Struct10 *) arg0->unk_E74[i]->data;
+
+    s0->unk_38 = arg5;
+    s0->unk_3A = arg4 ? arg4 : arg3;
+    s0->unk_40 = arg2;
+    s0->unk_44 = arg1;
+    s0->unk_3C = arg3;
+    s0->unk_48 = i;
+
+    osCreateMesgQueue(&s0->unk_18, s0->unk_30, ARRAY_COUNT(s0->unk_30));
+    s0->unk_34 = arg6;
+
+    arg0->unk_1490 = 1;
+    if (s0->unk_38 & 1) {
+        osJamMesg(&arg0->unk_7C, (OSMesg) s0, OS_MESG_BLOCK);
+    } else {
+        osSendMesg(&arg0->unk_7C, (OSMesg) s0, OS_MESG_BLOCK);
+    }
+
+    osSetIntMask(mask);
+    return 1;
+}
+
+void func_80002C94(Struct10 *arg0) {
+    osInvalDCache(arg0->unk_40, arg0->unk_3A);
+    osInvalICache(arg0->unk_40, arg0->unk_3A);
+
+    while (osPiGetStatus() != 0) {}
+    osPiStartDma(&arg0->unk_00, OS_MESG_PRI_NORMAL, OS_READ, arg0->unk_44, arg0->unk_40, arg0->unk_3A, &arg0->unk_18);
+    arg0->unk_38 |= 0x8000;
+}
+
+s32 func_80002D28(Scheduler *arg0) {
+    return arg0->unk_1494;
+}
+
+void func_80002D30(Scheduler *arg0) {
+    arg0->unk_1494++;
+}
+
+void func_80002D40(Scheduler *arg0) {
+    arg0->unk_1494--;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002D50.s")
 

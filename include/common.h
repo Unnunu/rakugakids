@@ -3,6 +3,9 @@
 
 #include "ultra64.h"
 #include "macros.h"
+
+#include "../src/task.h"
+
 #include "enums.h"
 #include "common_structs.h"
 #include "functions.h"

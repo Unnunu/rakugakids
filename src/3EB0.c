@@ -41,13 +41,13 @@ void func_80004AC4(void) {
     Struct4Sub5 *v0;
     Struct4Sub5 *a0;
     Struct4Sub5 *a1;
-    Struct4Sub3 *v1;
+    CameraSettings *v1;
     Struct4Sub2 *a11;
     f32 fv0;
     s32 ft5;
 
     v0 = D_80044244->unk_04;
-    v1 = &D_80044254->unk_39E20;
+    v1 = &D_80044254->cameras;
     if (D_80044254->unk_757F0 != NULL) {
         return;
     }
@@ -56,7 +56,7 @@ void func_80004AC4(void) {
     for (i = 0; i < 64; i++) {
         a11 = &D_80044254->unk_757F4[i];
         if (a11->unk_00 != 0 && D_80044254->unk_76C7C < 300) {
-            fv0 = a11->unk_08 - v1->unk_14;
+            fv0 = a11->unk_08 - v1->zEye;
             ft5 = (s32) (111.0 - fv0 / -10.0);
 
             if (ft5 < 0 || ft5 >= 111) {

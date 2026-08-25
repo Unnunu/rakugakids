@@ -35,15 +35,6 @@ typedef struct StructOvl2C {
     /* 0x18 */ f32 scale;
 } StructOvl2C; // size = 0x1C
 
-typedef struct StructOvl2B {
-    /* 0x000 */ Mtx mtxPersp;
-    /* 0x040 */ Mtx mtxView;
-    /* 0x080 */ Mtx mtxModel;
-    /* 0x0C0 */ Mtx unk_C0;
-    /* 0x100 */ Mtx unk_100;
-    /* 0x140 */ Mtx unk_140;
-} StructOvl2B; // size = 0x180
-
 extern StructOvl2C D_800A8250_31950;
 extern StructOvl2C D_800A84F0_31BF0;
 extern StructOvl2C D_800A8790_31E90;
@@ -234,8 +225,8 @@ void func_800A7464_30B64(void) {
     s0 = &D_800B2770_3BE70[D_800B2A74_3C174];
     func_800A7728_30E28(s0, &D_800A8A30_32130, D_800B2A78_3C178, D_800B2A7C_3C17C);
     gSPDisplayList(D_800B2A84_3C184++, D_800B0E00_3A500);
-    func_800A7590_30C90(D_800B0F28_3A628, &s0->unk_C0, &D_800A84F0_31BF0, D_800B2A78_3C178, D_800B2A7C_3C17C);
-    func_800A7590_30C90(D_800B18B8_3AFB8, &s0->unk_100, &D_800A8250_31950, D_800B2A78_3C178, D_800B2A7C_3C17C);
+    func_800A7590_30C90(D_800B0F28_3A628, &s0->mtxRotateY, &D_800A84F0_31BF0, D_800B2A78_3C178, D_800B2A7C_3C17C);
+    func_800A7590_30C90(D_800B18B8_3AFB8, &s0->mtxRotateZ, &D_800A8250_31950, D_800B2A78_3C178, D_800B2A7C_3C17C);
     func_800A7590_30C90(D_800B2248_3B948, &s0->unk_140, &D_800A8790_31E90, D_800B2A78_3C178, D_800B2A7C_3C17C);
     gDPPipeSync(D_800B2A84_3C184++);
 }
@@ -301,9 +292,9 @@ void func_800A7728_30E28(StructOvl2B *arg0, StructOvl2A *arg1, s32 arg2, f32 arg
 
     gSPViewport(D_800B2A84_3C184++, &D_800B26A8_3BDA8);
 
-    guPerspective(&arg0->mtxPersp, &sp92, fovy, 4.0f / 3.0f, 1.0f, 1000.0f, 1.0f);
+    guPerspective(&arg0->mtxProjection, &sp92, fovy, 4.0f / 3.0f, 1.0f, 1000.0f, 1.0f);
     gSPPerspNormalize(D_800B2A84_3C184++, sp92);
-    gSPMatrix(D_800B2A84_3C184++, &arg0->mtxPersp, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gSPMatrix(D_800B2A84_3C184++, &arg0->mtxProjection, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
 
     guLookAt(&arg0->mtxView, sp8C, sp88, sp84, sp80, sp7C, sp78, 0.0f, 1.0f, 0.0f);
     gSPMatrix(D_800B2A84_3C184++, &arg0->mtxView, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
@@ -311,8 +302,8 @@ void func_800A7728_30E28(StructOvl2B *arg0, StructOvl2A *arg1, s32 arg2, f32 arg
     gSPClipRatio(D_800B2A84_3C184++, FRUSTRATIO_3);
     gDPSetScissor(D_800B2A84_3C184++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
 
-    guMtxIdent(&arg0->mtxModel);
-    gSPMatrix(D_800B2A84_3C184++, &arg0->mtxModel, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    guMtxIdent(&arg0->mtxRotateX);
+    gSPMatrix(D_800B2A84_3C184++, &arg0->mtxRotateX, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 }
 #else
 #pragma GLOBAL_ASM("asm/nonmatchings/ovl2/30650/func_800A7728_30E28.s")

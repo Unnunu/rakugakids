@@ -25,8 +25,8 @@ typedef struct Scheduler {
     /* 0x0006 */ u16 unk_06;
     /* 0x0008 */ u16 unk_08;
     /* 0x000A */ s16 unk_0A;
-    /* 0x0044 */ OSMesgQueue audioTaskQueue;
-    /* 0x005C */ OSMesg unk_24[8];
+    /* 0x000C */ OSMesgQueue audioTaskQueue;
+    /* 0x0024 */ OSMesg unk_24[8];
     /* 0x0044 */ OSMesgQueue gfxTaskQueue;
     /* 0x005C */ OSMesg unk_5C[8];
     /* 0x007C */ OSMesgQueue unk_7C;
@@ -57,7 +57,8 @@ typedef struct Scheduler {
     /* 0x0B10 */ OSThread unk_B10;
     /* 0x0CC0 */ OSThread unk_CC0;
     /* 0x0E70 */ struct ScClient *clientList;
-    /* 0x0E74 */ char unk_E74[0x600];
+    /* 0x0E74 */ HeapChunk *unk_E74[0x40];
+    /* 0x0E74 */ u8 unk_F74[0x500];
     /* 0x1474 */ ScTask *gfxTask;
     /* 0x1478 */ ScTask *audioTask;
     /* 0x147C */ ScTask *unk_147C;
@@ -75,21 +76,26 @@ typedef struct ScClient {
     /* 0x08 */ s32 mask;
 } ScClient; // size = 0x4
 
-// Gfx?
-typedef struct Struct5Sub1 {
-    /* 0x00 */ char unk_00[8];
-} Struct5Sub1; // size = 8
+typedef struct StructOvl2B {
+    /* 0x000 */ Mtx mtxProjection;
+    /* 0x040 */ Mtx mtxView;
+    /* 0x080 */ Mtx mtxRotateX;
+    /* 0x0C0 */ Mtx mtxRotateY;
+    /* 0x100 */ Mtx mtxRotateZ;
+    /* 0x140 */ Mtx unk_140;
+} StructOvl2B; // size = 0x180
 
 typedef struct Struct5 {
     /* 0x00000 */ Gfx unk_00[0x800];
-    /* 0x04000 */ Struct5Sub1 unk_4000[4];
+    /* 0x04000 */ Gfx unk_4000[4];
     /* 0x04020 */ char unk_4020[0x1C800 - 0x04020];
     /* 0x1C800 */ s32 unk_1C800[4];
-    /* 0x1C810 */ Struct5Sub1 *unk_1C810[4];
+    /* 0x1C810 */ Gfx *unk_1C810[4];
     /* 0x1C820 */ Gfx *unk_1C820[4];
     /* 0x1C830 */ Gfx *unk_1C830[4];
     /* 0x1C840 */ HeapChunk *unk_1C840;
-    /* 0x1C844 */ char unk_1C844[0xE48 - 0x844];
+    /* 0x1C844 */ char unk_1C844[4];
+    /* 0x1C848 */ StructOvl2B unk_1C848[4];
 } Struct5; // size = 0x1CE48
 
 typedef struct Struct4Sub1Sub {
@@ -119,16 +125,37 @@ typedef struct Struct4Sub2 {
     /* 0x0C */ s32 unk_0C;
 } Struct4Sub2; // size = 0x10
 
-typedef struct Struct4Sub3 {
-    /* 0x00 */ u16 unk_00;
-    /* 0x02 */ u16 unk_02;
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ s32 unk_10;
-    /* 0x14 */ f32 unk_14;
-    /* 0x18 */ char unk_18[0x74 - 0x18];
-} Struct4Sub3; // size = 0x74
+typedef struct CameraSettings {
+    /* 0x00 */ u16 id;
+    /* 0x04 */ void (*updateFunc)(struct CameraSettings *);
+    /* 0x08 */ u8 flags;
+    /* 0x0C */ f32 xEye;
+    /* 0x10 */ f32 yEye;
+    /* 0x14 */ f32 zEye;
+    /* 0x18 */ f32 xAt;
+    /* 0x1C */ f32 yAt;
+    /* 0x20 */ f32 zAt;
+    /* 0x24 */ f32 xUp;
+    /* 0x28 */ f32 yUp;
+    /* 0x2C */ s32 zUp;
+    /* 0x30 */ f32 xAngle;
+    /* 0x34 */ f32 yAngle;
+    /* 0x38 */ f32 zAngle;
+    /* 0x3C */ f32 fovy;
+    /* 0x40 */ f32 aspect;
+    /* 0x44 */ f32 near;
+    /* 0x48 */ f32 far;
+    /* 0x4C */ f32 scale;
+    /* 0x50 */ f32 left;
+    /* 0x54 */ f32 right;
+    /* 0x58 */ f32 bottom;
+    /* 0x5C */ f32 top;
+    /* 0x60 */ Vp *viewport;
+    /* 0x64 */ s32 scisLeft;
+    /* 0x68 */ s32 scisTop;
+    /* 0x6C */ s32 scisRight;
+    /* 0x70 */ s32 scisBottom;
+} CameraSettings; // size = 0x74
 
 typedef struct Struct4Sub5 {
     /* 0x00 */ u32 unk_00;
@@ -153,7 +180,7 @@ typedef struct Struct4 {
     /* 0x39C9D */ u8 unk_39C9D;
     /* 0x39C9E */ InputData inputs[4];
     /* 0x39E1E */ char unk_39E1E[2]; // padding?
-    /* 0x39E20 */ Struct4Sub3 unk_39E20[4];
+    /* 0x39E20 */ CameraSettings cameras[4];
     /* 0x39FF0 */ char unk_39FF0[0x757F0 - 0x39FF0];
     /* 0x757F0 */ void (*unk_757F0)(void);
     /* 0x757F4 */ Struct4Sub2 unk_757F4[0x40];
@@ -168,25 +195,6 @@ typedef struct Struct4 {
     /* 0x76C8C */ char unk_76C8C[0x80C90 - 0x76C8C];
 } Struct4; // size = 0x80C90
 
-typedef struct Task {
-    /* 0x00 */ void (*unk_00)(s32);
-    /* 0x00 */ u8 *unk_04;
-    /* 0x08 */ HeapChunk *unk_08;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ struct Task *next;
-    /* 0x14 */ struct Task *prev;
-    /* 0x18 */ u16 unk_18;
-    /* 0x1A */ u16 priority;
-} Task; // size = 0x1C
-
-typedef struct TaskManager {
-    /* 0x0000 */ Task unk_00;
-    /* 0x001C */ Task unk_1C[0xE0];
-    /* 0x189C */ u8 unk_189C;
-    /* 0x189D */ u8 unk_189D[0xE0];
-    /* 0x197D */ u8 numTasks;
-} TaskManager; // size = 0x1980
-
 typedef struct AudioConfig {
     /* 0x00 */ s32 frequency;
     /* 0x04 */ u32 freqMultiplier;
@@ -197,7 +205,7 @@ typedef struct Overlay {
     /* 0x00 */ s32 romStart;
     /* 0x04 */ s32 romEnd;
     /* 0x08 */ s32 vramAddr;
-    /* 0x0C */ s32 (*initFunc)(s32);
+    /* 0x0C */ s32 (*runFunc)(s32);
 } Overlay; // size = 0x10
 
 #endif

@@ -75,6 +75,11 @@ osUnmapTLB = 0x80020DC0;
 
 
 mem_clear = 0x80001040;
-heap_alloc = 0x8000C160;
+mem_alloc = 0x8000C160;
 gScheduler = 0x80035FC0; //size:0x1498
 load_overlay = 0x80001730;
+task_create = 0x8000C54C;
+task_set_flags = 0x8000C7FC;
+task_run_all = 0x8000C864;
+mem_free = 0x8000C28C;
+task_set_priority = 0x8000C628;

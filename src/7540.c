@@ -2,7 +2,10 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/7540/func_80006940.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/7540/func_80006AC4.s")
+s32 func_80006AC4(Task *task) {
+    task_run_all(D_80044264);
+    return TASK_CONTINUE;
+}
 
 #pragma GLOBAL_ASM("asm/nonmatchings/7540/func_80006AF0.s")
 

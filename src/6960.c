@@ -14,12 +14,18 @@
 
 #pragma GLOBAL_ASM("asm/nonmatchings/6960/func_80005FA8.s")
 
-#pragma GLOBAL_ASM("asm/nonmatchings/6960/func_800061AC.s")
+s32 func_800061AC(Task *task) {
+    OSMesgQueue *queue;
+    s32 pad;
+    OSMesg sp1C;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/6960/func_80006200.s")
+    sp1C = NULL;
+    queue = (OSMesgQueue *) task->unk_08->data;
+    osRecvMesg(queue, &sp1C, OS_MESG_NOBLOCK);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/6960/func_800062C4.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/6960/func_80006348.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/6960/func_800063E4.s")
+    if (sp1C != NULL) {
+        func_80002D40(&gScheduler);
+        return TASK_DONE;
+    }
+    return TASK_CONTINUE;
+}
