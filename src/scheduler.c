@@ -445,90 +445,91 @@ void func_80002D40(Scheduler *arg0) {
 }
 
 void func_80002D50(Scheduler *arg0) {
-    s32 pad[2];
+    s32 pad;
+    s32 distance;
     SchedulerSub *sp6C;
     StructD48 *s1;
-    u32 s3;
-    u32 i;
+    u32 byteVal;
+    u32 length;
     u8 *v1;
-    s32 s2;
-    Struct1950 *s00;
+    s32 fillValue;
+    HuffmanTree *ht;
     s32 v02;
     u32 a0;
 
     while (TRUE) {
         osRecvMesg(&arg0->unk_1CC, (OSMesg *) &sp6C, OS_MESG_BLOCK);
 
-        if (sp6C->unk_0C->index & 0x20000000) {
-            sp6C->unk_0C->index &= ~0x30000000;
+        if (sp6C->unk_0C->tableIndex & 0x20000000) {
+            sp6C->unk_0C->tableIndex &= ~0x30000000;
             arg0->unk_1494--;
-        } else if (sp6C->unk_00 & 1) {
-            s1 = (StructD48 *) arg0->unk_1374[sp6C->unk_04]->data;
-            if (s1->unk_04 < s1->unk_08) {
-                s3 = *s1->unk_0C;
+        } else if (sp6C->mode & 1) {
+            s1 = (StructD48 *) arg0->unk_1374[sp6C->index]->data;
+            if (s1->romPtr < s1->romEnd) {
+                byteVal = *s1->inBufPtr;
                 func_8000D568(s1);
-                if (s3 < 0x80) {
-                    s2 = (*s1->unk_0C + (s3 << 4 << 4)) & 0x3FF;
-                    i = (s3 >> 2) + 2;
+                if (byteVal < 0x80) {
+                    distance = (*s1->inBufPtr + (byteVal << 4 << 4)) & 0x3FF;
+                    length = (byteVal >> 2) + 2;
                     func_8000D568(s1);
 
-                    v1 = s1->unk_10 - s2;
-                    while (i--) {
-                        *s1->unk_10++ = *v1++;
+                    v1 = s1->outBufPtr - distance;
+                    while (length--) {
+                        *s1->outBufPtr++ = *v1++;
                     }
-                } else if (s3 < 0xA0) {
-                    i = s3 & 0x1F;
-                    while (i--) {
-                        *s1->unk_10++ = *s1->unk_0C;
+                } else if (byteVal < 0xA0) {
+                    length = byteVal & 0x1F;
+                    while (length--) {
+                        *s1->outBufPtr++ = *s1->inBufPtr;
                         func_8000D568(s1);
                     }
                 } else {
-                    if (s3 < 0xE0) {
-                        i = (s3 & 0x1F) + 2;
-                        s2 = *s1->unk_0C;
+                    if (byteVal < 0xE0) {
+                        length = (byteVal & 0x1F) + 2;
+                        fillValue = *s1->inBufPtr;
                         func_8000D568(s1);
-                    } else if (s3 < 0xFF) {
-                        i = (s3 & 0x1F) + 2;
-                        s2 = 0;
+                    } else if (byteVal < 0xFF) {
+                        length = (byteVal & 0x1F) + 2;
+                        fillValue = 0;
                     } else {
-                        i = *s1->unk_0C + 2;
+                        length = *s1->inBufPtr + 2;
                         func_8000D568(s1);
-                        s2 = 0;
+                        fillValue = 0;
                     }
 
-                    while (i--) {
-                        *s1->unk_10++ = s2;
+                    while (length--) {
+                        *s1->outBufPtr++ = fillValue;
                     }
                 }
 
                 osSendMesg(&arg0->unk_1CC, sp6C, OS_MESG_BLOCK);
             } else {
-                sp6C->unk_00 = 0;
+                sp6C->mode = 0;
                 arg0->unk_1494--;
-                sp6C->unk_0C->index &= ~0x10000000;
-                if (sp6C->unk_08 != NULL) {
-                    osSendMesg(sp6C->unk_08, (OSMesg) 802, OS_MESG_BLOCK);
+                sp6C->unk_0C->tableIndex &= ~0x10000000;
+                if (sp6C->queue != NULL) {
+                    osSendMesg(sp6C->queue, (OSMesg) 802, OS_MESG_BLOCK);
                 }
-                mem_free(arg0->unk_1374[sp6C->unk_04]);
+                mem_free(arg0->unk_1374[sp6C->index]);
             }
         } else {
-            s00 = (Struct1950 *) arg0->unk_1374[sp6C->unk_04]->data;
-            v02 = func_8000DBCC(s00);
+            ht = (HuffmanTree *) arg0->unk_1374[sp6C->index]->data;
+            v02 = huffman_get_char(ht);
             if (v02 != 0x101) {
                 if (v02 == 0x100) {
-                    func_8000DC48(s00);
+                    func_8000DC48(ht);
                 } else {
-                    *s00->unk_04++ = v02;
+                    *ht->outPtr++ = v02;
                 }
                 osSendMesg(&arg0->unk_1CC, sp6C, OS_MESG_BLOCK);
             } else {
-                sp6C->unk_00 = 0;
+                sp6C->mode = 0;
                 arg0->unk_1494--;
-                sp6C->unk_0C->index &= ~0x10000000;
-                if (sp6C->unk_08 != NULL) {
-                    osSendMesg(sp6C->unk_08, (OSMesg) 802, OS_MESG_BLOCK);
+                sp6C->unk_0C->tableIndex &= ~0x10000000;
+                if (sp6C->queue != NULL) {
+                    osSendMesg(sp6C->queue, (OSMesg) 802, OS_MESG_BLOCK);
                 }
-                mem_free(arg0->unk_1374[sp6C->unk_04]);
+                mem_free(arg0->unk_1374[sp6C->index]);
             }
         }
     }
@@ -542,14 +543,15 @@ void func_800030C8(s32 *arg0) {
     osSetIntMask(mask);
 }
 
-s32 func_80003108(Scheduler *arg0, s32 arg1, NIStruct2 *arg2, s32 arg3, void *arg4, s32 arg5, u8 arg6) {
+s32 func_80003108(Scheduler *arg0, OSMesgQueue *arg1, NIStruct2 *arg2, s32 romAddr, void *outBuf, s32 outBufSize,
+                  u8 mode) {
     s32 i;
     s32 pad[2];
     StructD48 *s0;
-    Struct1950 *s1;
+    HuffmanTree *s1;
 
     for (i = 0; i < 64; i++) {
-        if (arg0->unk_F74[i].unk_00 == 0) {
+        if (arg0->unk_F74[i].mode == 0) {
             break;
         }
     }
@@ -557,34 +559,34 @@ s32 func_80003108(Scheduler *arg0, s32 arg1, NIStruct2 *arg2, s32 arg3, void *ar
         return 0;
     }
 
-    arg0->unk_F74[i].unk_00 = arg6;
-    arg0->unk_F74[i].unk_08 = arg1;
-    arg0->unk_F74[i].unk_04 = i;
+    arg0->unk_F74[i].mode = mode;
+    arg0->unk_F74[i].queue = arg1;
+    arg0->unk_F74[i].index = i;
     arg0->unk_F74[i].unk_0C = arg2;
 
-    arg0->unk_F74[i].unk_0C->index &= ~0x20000000;
-    arg0->unk_F74[i].unk_0C->index |= 0x10000000;
+    arg0->unk_F74[i].unk_0C->tableIndex &= ~0x20000000;
+    arg0->unk_F74[i].unk_0C->tableIndex |= 0x10000000;
     arg0->unk_1494++;
 
-    if (arg6 & 1) {
+    if (mode & 1) {
         arg0->unk_1374[i] = mem_alloc(&arg0->unk_1374[i], sizeof(StructD48));
         s0 = (StructD48 *) arg0->unk_1374[i]->data;
         mem_clear(s0, sizeof(StructD48));
-        func_8000D2E4(s0, arg3, arg4, arg5);
+        func_8000D2E4(s0, romAddr, outBuf, outBufSize);
         osCreateMesgQueue(&s0->unk_D28, s0->unk_D40, ARRAY_COUNT(s0->unk_D40));
     } else {
-        arg0->unk_1374[i] = mem_alloc(&arg0->unk_1374[i], sizeof(Struct1950));
-        s1 = (Struct1950 *) arg0->unk_1374[i]->data;
-        mem_clear(s1, sizeof(Struct1950));
+        arg0->unk_1374[i] = mem_alloc(&arg0->unk_1374[i], sizeof(HuffmanTree));
+        s1 = (HuffmanTree *) arg0->unk_1374[i]->data;
+        mem_clear(s1, sizeof(HuffmanTree));
 
-        s1->unk_00 = arg3;
-        s1->unk_08 = 0xD00;
-        s1->unk_04 = arg4;
-        s1->unk_C24 = 0;
-        s1->unk_C28 = 0x80000000;
+        s1->romPtr = romAddr;
+        s1->bufIndex = 0xD00;
+        s1->outPtr = outBuf;
+        s1->wordValue = 0;
+        s1->bitMask = 0x80000000;
 
-        func_8000D92C(s1);
-        s1->unk_C2C = func_8000DA30(s1);
+        huffman_read_frequencies(s1);
+        s1->rootIndex = huffman_build_tree(s1);
         func_8000D744(s1);
         osCreateMesgQueue(&s1->unk_1930, s1->unk_1948, ARRAY_COUNT(s1->unk_1948));
     }

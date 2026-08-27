@@ -40,17 +40,17 @@ void func_80005FA8(NIStruct2 *arg0, void *arg1) {
     s32 fileFlags;
     Task *task;
 
-    romEnd = D_80027958.records[(arg0->index & 0xFFFFFF) - 1].romEnd;
-    romStart = D_80027958.records[(arg0->index & 0xFFFFFF) - 1].romStart;
+    romEnd = D_80027958.records[(arg0->tableIndex & 0xFFFFFF) - 1].romEnd;
+    romStart = D_80027958.records[(arg0->tableIndex & 0xFFFFFF) - 1].romStart;
     fileFlags = romStart & 0xC0000000;
     romStart = romStart & 0x3FFFFFFF;
-    size = arg0->size;
+    size = arg0->uncompressedSize;
 
-    if (arg0->size == 0) {
+    if (arg0->uncompressedSize == 0) {
         while (TRUE) {}
     }
 
-    if (arg0->index == 0 || (arg0->index & 0x10000000) && arg1 == NULL) {
+    if (arg0->tableIndex == 0 || (arg0->tableIndex & 0x10000000) && arg1 == NULL) {
         return;
     }
 
@@ -67,10 +67,10 @@ void func_80005FA8(NIStruct2 *arg0, void *arg1) {
 
     if (fileFlags != 0) {
         if (fileFlags == 0x40000000) {
-            func_80003108(&gScheduler, 0, arg0, romStart, ramAddr, romEnd - romStart, 2);
+            func_80003108(&gScheduler, NULL, arg0, romStart, ramAddr, romEnd - romStart, 2);
         }
         if (fileFlags == 0x80000000) {
-            func_80003108(&gScheduler, 0, arg0, romStart, ramAddr, romEnd - romStart, 1);
+            func_80003108(&gScheduler, NULL, arg0, romStart, ramAddr, romEnd - romStart, 1);
         }
     } else {
         func_80002D30(&gScheduler);

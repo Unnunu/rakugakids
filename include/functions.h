@@ -44,15 +44,15 @@ void func_80011738(u16 arg0);
 void func_80001200(void);
 void func_80005E8C(u8 *);
 void func_80002D40(Scheduler *arg0);
-s32 func_80003108(Scheduler *, s32, NIStruct2 *, s32, void *, s32, u8);
+s32 func_80003108(Scheduler *, OSMesgQueue *, NIStruct2 *, s32, void *, s32, u8);
 void func_80002D30(Scheduler *arg0);
 void func_8000D568(StructD48 *);
-void func_8000D2E4(StructD48 *, s32, void *, s32);
+void func_8000D2E4(StructD48 *, u32, u8 *, s32);
 
-void func_8000D744(Struct1950 *);
-void func_8000D92C(Struct1950 *);
-s32 func_8000DA30(Struct1950 *);
-s32 func_8000DBCC(Struct1950 *);
-void func_8000DC48(Struct1950 *);
+void func_8000D744(HuffmanTree *);
+void huffman_read_frequencies(HuffmanTree *);
+s32 huffman_build_tree(HuffmanTree *);
+s32 huffman_get_char(HuffmanTree *);
+void func_8000DC48(HuffmanTree *);
 
 #endif

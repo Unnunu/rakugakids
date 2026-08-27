@@ -79,7 +79,7 @@ segments:
       - [0xCD50, c]
       - [0xCD60, c, heap]
       - [0xD0E0, c, task]
-      - [0xDEA0, c]
+      - [0xDEA0, c, compression]
       - [0xE9D0, c]
       - [0xF490, c]
       - [0x114F0, c, audio]
@@ -300,13 +300,15 @@ segments:
       - { type: .bss, vram: 0x8002FA50, name: main }
       - { type: .bss, vram: 0x80035FC0, name: scheduler }
       - { type: bss, vram: 0x80043480, name: bss1 }
+      - { type: .bss, vram: 0x8004F720, name: compression }
+      - { type: bss, vram: 0x800504A0, name: bss2 }
       - { type: .bss, vram: 0x800A3500, name: ../ultralib/src/gu/rotate }
       - { type: .bss, vram: 0x800A3510, name: ../ultralib/src/io/sptask }
       - { type: .bss, vram: 0x800A3550, name: ../ultralib/src/io/leointerrupt }
       - { type: .bss, vram: 0x800A4550, name: ../ultralib/src/io/controller }
       - { type: .bss, vram: 0x800A45E0, name: ../ultralib/src/io/siacs }
       - { type: .bss, vram: 0x800A4600, name: ../ultralib/src/os/initialize }
-      - { type: bss, vram: 0x800A4610, name: bss2 }
+      - { type: bss, vram: 0x800A4610, name: bss3 }
       - { type: .bss, vram: 0x800A47C0, name: ../ultralib/src/io/contpfs }
       - { type: .bss, vram: 0x800A48C0, name: ../ultralib/src/io/pimgr }
       - { type: .bss, vram: 0x800A5B80, name: ../ultralib/src/io/piacs }

@@ -19,15 +19,15 @@ typedef struct ScTask {
 } ScTask; // size = 0x58
 
 typedef struct NIStruct2 {
-    /* 0x00 */ u32 index;
-    /* 0x04 */ u32 size;
+    /* 0x00 */ u32 tableIndex;
+    /* 0x04 */ u32 uncompressedSize;
     /* 0x08 */ HeapChunk *unk_08;
 } NIStruct2; // size >= 0xC
 
 typedef struct SchedulerSub {
-    /* 0x00 */ s32 unk_00;
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ OSMesgQueue *unk_08;
+    /* 0x00 */ s32 mode;
+    /* 0x04 */ s32 index;
+    /* 0x08 */ OSMesgQueue *queue;
     /* 0x0C */ NIStruct2 *unk_0C;
 } SchedulerSub; // size = 0x10
 
@@ -223,29 +223,40 @@ typedef struct Overlay {
 } Overlay; // size = 0x10
 
 typedef struct StructD48 {
-    /* 0x000 */ s32 unk_00;
-    /* 0x004 */ u32 unk_04;
-    /* 0x008 */ u32 unk_08;
-    /* 0x00C */ u8 *unk_0C;
-    /* 0x010 */ u8 *unk_10;
-    /* 0x014 */ char unk_14[0xD28 - 0x14];
+    /* 0x000 */ s32 romAddr;
+    /* 0x004 */ u32 romPtr;
+    /* 0x008 */ u32 romEnd;
+    /* 0x00C */ u8 *inBufPtr;
+    /* 0x010 */ u8 *outBufPtr;
+    /* 0x014 */ s32 size;
+    /* 0x018 */ s32 batchSize;
+    /* 0x01C */ s32 unk_1C;
+    /* 0x020 */ s32 offset;
+    /* 0x024 */ s32 unk_24;
+    /* 0x028 */ u8 buffer[0xD00];
     /* 0xD28 */ OSMesgQueue unk_D28;
     /* 0xD40 */ OSMesg unk_D40[1];
     /* 0xD44 */ s32 unk_D44;
 } StructD48; // size = 0xD48
 
-typedef struct Struct1950 {
-    /* 0x0000 */ s32 unk_00;
-    /* 0x0004 */ u8 *unk_04;
-    /* 0x0008 */ s32 unk_08;
-    /* 0x000C */ char unk_0C[0xC24 - 0xC];
-    /* 0x0C24 */ s32 unk_C24;
-    /* 0x0C28 */ s32 unk_C28;
-    /* 0x0C2C */ s32 unk_C2C;
-    /* 0x0C30 */ char unk_C30[0xD00];
+typedef struct HuffmanTreeNode {
+    /* 0x00 */ u16 frequency;
+    /* 0x00 */ u16 leftChild;
+    /* 0x00 */ u16 rightChild;
+} HuffmanTreeNode; // size = 0x6
+
+typedef struct HuffmanTree {
+    /* 0x0000 */ s32 romPtr;
+    /* 0x0004 */ u8 *outPtr;
+    /* 0x0008 */ s32 bufIndex;
+    /* 0x000C */ HuffmanTreeNode tree[0x204];
+    /* 0x0C24 */ u32 wordValue;
+    /* 0x0C28 */ u32 bitMask;
+    /* 0x0C2C */ s32 rootIndex;
+    /* 0x0C30 */ u8 buffer[0xD00];
     /* 0x1930 */ OSMesgQueue unk_1930;
     /* 0x1948 */ OSMesg unk_1948[1];
     /* 0x194C */ s32 unk_194C;
-} Struct1950; // size = 0x1950
+} HuffmanTree; // size = 0x1950
 
 #endif
