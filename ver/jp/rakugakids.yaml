@@ -339,7 +339,7 @@ segments:
     vram: 0x800A6F50
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 2
+    exclusive_ram_id: 1
     subsegments:
       - [0x3BE70, c]
       - [0x3D020, c]
@@ -357,7 +357,7 @@ segments:
     vram: 0x800ACB90
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 3a
+    exclusive_ram_id: 2
     subsegments:
       - [0x40C20, c]
       - [0x434C0, c]
@@ -373,7 +373,7 @@ segments:
     vram: 0x800ACB90
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 3b
+    exclusive_ram_id: 2
     subsegments:
       - [0x455E0, c]
       - [0x45960, c]
@@ -389,7 +389,7 @@ segments:
     vram: 0x800ACB90
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 3c
+    exclusive_ram_id: 2
     subsegments:
       - [0x50640, c]
       - [0x58460, data]
@@ -402,7 +402,7 @@ segments:
     vram: 0x800ACB90
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 3d
+    exclusive_ram_id: 2
     subsegments:
       - [0x5C590, c]
       - [0x5EA50, data]
@@ -415,7 +415,7 @@ segments:
     vram: 0x800ACB90
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 3e
+    exclusive_ram_id: 2
     subsegments:
       - [0x5F2B0, c]
       - [0x62420, c]
@@ -441,7 +441,7 @@ segments:
     vram: 0x800ACB90
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 3f
+    exclusive_ram_id: 2
     subsegments:
       - [0x84980, c]
       - [0x86A20, c]
@@ -459,7 +459,7 @@ segments:
     vram: 0x800A6F50
     bss_size: 0x100000
     symbol_name_format: $VRAM_$ROM
-    exclusive_ram_id: 3
+    exclusive_ram_id: 1
     subsegments:
       - [0xCC760, c]
       - [0xCE0F0, data]

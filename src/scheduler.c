@@ -1,17 +1,17 @@
 #include "common.h"
 
-typedef struct Struct10 {
-    /* 0x00 */ OSIoMesg unk_00;
-    /* 0x18 */ OSMesgQueue unk_18;
-    /* 0x30 */ OSMesg unk_30[1];
-    /* 0x34 */ OSMesgQueue *unk_34;
-    /* 0x38 */ u16 unk_38;
-    /* 0x3A */ u16 unk_3A;
-    /* 0x3C */ u32 unk_3C;
-    /* 0x40 */ s32 unk_40;
-    /* 0x44 */ s32 unk_44;
-    /* 0x48 */ u16 unk_48;
-} Struct10; // size ?
+typedef struct DMARequest {
+    /* 0x00 */ OSIoMesg ioMesg;
+    /* 0x18 */ OSMesgQueue piCompletionQueue;
+    /* 0x30 */ OSMesg piMesgs[1];
+    /* 0x34 */ OSMesgQueue *requestCompletionQueue;
+    /* 0x38 */ u16 flags;
+    /* 0x3A */ u16 batchSize;
+    /* 0x3C */ u32 size;
+    /* 0x40 */ s32 ramAddr;
+    /* 0x44 */ s32 romAddr;
+    /* 0x48 */ u16 id;
+} DMARequest; // size ?
 
 /* .bss */
 
@@ -33,9 +33,9 @@ void sched_event_loop(Scheduler *);
 void sched_audio_rsp_loop(Scheduler *);
 void sched_gfx_rsp_loop(Scheduler *);
 void func_8000276C(Scheduler *);
-void func_80002938(Scheduler *);
-void func_80002D50(void *);
-void func_80002C94(Struct10 *arg0);
+void sched_dma_loop(Scheduler *);
+void func_80002D50(Scheduler *);
+void execute_dma_request(DMARequest *arg0);
 
 void sched_init(Scheduler *arg0, u8 videoMode, u8 retraceCount) {
 
@@ -62,10 +62,10 @@ void sched_init(Scheduler *arg0, u8 videoMode, u8 retraceCount) {
     osCreateMesgQueue(&arg0->queueSPComplete, arg0->unk_334, ARRAY_COUNT(arg0->unk_334));
     osCreateMesgQueue(&arg0->queueDP, arg0->unk_36C, ARRAY_COUNT(arg0->unk_36C));
 
-    osCreateMesgQueue(&arg0->gfxTaskQueue, arg0->unk_5C, ARRAY_COUNT(arg0->unk_5C));
+    osCreateMesgQueue(&arg0->gfxTaskQueue, arg0->gfxTaskMsgs, ARRAY_COUNT(arg0->gfxTaskMsgs));
     osCreateMesgQueue(&arg0->unk_194, arg0->unk_1AC, ARRAY_COUNT(arg0->unk_1AC));
-    osCreateMesgQueue(&arg0->audioTaskQueue, arg0->unk_24, ARRAY_COUNT(arg0->unk_24));
-    osCreateMesgQueue(&arg0->unk_7C, arg0->unk_94, ARRAY_COUNT(arg0->unk_94));
+    osCreateMesgQueue(&arg0->audioTaskQueue, arg0->audioTaskMsgs, ARRAY_COUNT(arg0->audioTaskMsgs));
+    osCreateMesgQueue(&arg0->dmaQueue, arg0->dmaMesgs, ARRAY_COUNT(arg0->dmaMesgs));
     osCreateMesgQueue(&arg0->unk_1CC, arg0->unk_1E4, ARRAY_COUNT(arg0->unk_1E4));
     osCreateMesgQueue(&arg0->unk_414, arg0->unk_42C, ARRAY_COUNT(arg0->unk_42C));
     osCreateMesgQueue(&arg0->unk_38C, arg0->unk_3A4, ARRAY_COUNT(arg0->unk_3A4));
@@ -90,7 +90,7 @@ void sched_init(Scheduler *arg0, u8 videoMode, u8 retraceCount) {
     osStartThread(&arg0->unk_7B0);
     osCreateThread(&arg0->unk_CC0, 15, func_80002D50, arg0, D_80041480 + sizeof(D_80041480), 5);
     osStartThread(&arg0->unk_CC0);
-    osCreateThread(&arg0->unk_960, 14, func_80002938, arg0, D_8003D480 + sizeof(D_8003D480), 10);
+    osCreateThread(&arg0->unk_960, 14, sched_dma_loop, arg0, D_8003D480 + sizeof(D_8003D480), 10);
     osStartThread(&arg0->unk_960);
 }
 
@@ -321,67 +321,68 @@ void func_80002928(Scheduler *arg0) {
     arg0->unk_1484 += 2;
 }
 
-void func_80002938(Scheduler *arg0) {
-    s32 s0;
-    u8 *sp48;
-    Struct10 *sp44;
+void sched_dma_loop(Scheduler *arg0) {
+    s32 numActiveTransfers;
+    OSIoMesg *completed;
+    DMARequest *request;
     s32 pad;
 
-    sp48 = NULL;
-    s0 = 0;
+    completed = NULL;
+    numActiveTransfers = 0;
 
     while (TRUE) {
-        osRecvMesg(&arg0->unk_7C, (OSMesg *) &sp44, OS_MESG_BLOCK);
-        sp48 = NULL;
+        osRecvMesg(&arg0->dmaQueue, (OSMesg *) &request, OS_MESG_BLOCK);
+        completed = NULL;
 
-        if (sp44->unk_38 & 1) {
-            func_80002C94(sp44);
-            s0++;
-            osRecvMesg(&sp44->unk_18, (OSMesg *) &sp48, OS_MESG_BLOCK);
+        if (request->flags & 1) {
+            execute_dma_request(request);
+            numActiveTransfers++;
+            osRecvMesg(&request->piCompletionQueue, (OSMesg *) &completed, OS_MESG_BLOCK);
         } else {
-            if (!(sp44->unk_38 & 0x8000)) {
-                func_80002C94(sp44);
-                s0++;
+            if (!(request->flags & 0x8000)) {
+                execute_dma_request(request);
+                numActiveTransfers++;
             }
-            osRecvMesg(&sp44->unk_18, (OSMesg *) &sp48, OS_MESG_NOBLOCK);
+            osRecvMesg(&request->piCompletionQueue, (OSMesg *) &completed, OS_MESG_NOBLOCK);
         }
 
-        if (sp48 != NULL) {
-            s0--;
-            sp44->unk_3C -= sp44->unk_3A;
-            if (sp44->unk_3C != 0) {
-                sp44->unk_38 &= ~0x8000;
-                sp44->unk_44 += sp44->unk_3A;
-                sp44->unk_40 += sp44->unk_3A;
-                if (sp44->unk_3A > sp44->unk_3C) {
-                    sp44->unk_3A = sp44->unk_3C;
+        if (completed != NULL) {
+            numActiveTransfers--;
+            request->size -= request->batchSize;
+            if (request->size != 0) {
+                request->flags &= ~0x8000;
+                request->romAddr += request->batchSize;
+                request->ramAddr += request->batchSize;
+                if (request->batchSize > request->size) {
+                    request->batchSize = request->size;
                 }
             } else {
-                sp44->unk_38 |= 0x4000;
+                request->flags |= 0x4000;
             }
         }
 
-        if (sp44->unk_38 & 0x4000) {
-            if (sp44->unk_34 != NULL) {
-                osSendMesg(sp44->unk_34, (OSMesg) 801, OS_MESG_BLOCK);
+        if (request->flags & 0x4000) {
+            if (request->requestCompletionQueue != NULL) {
+                osSendMesg(request->requestCompletionQueue, (OSMesg) 801, OS_MESG_BLOCK);
             }
-            mem_free(arg0->unk_E74[sp44->unk_48]);
+            mem_free(arg0->dmaRequests[request->id]);
         }
 
-        if (!(sp44->unk_38 & 0x4000)) {
-            if (sp44->unk_38 & 1) {
-                osJamMesg(&arg0->unk_7C, (OSMesg) sp44, OS_MESG_BLOCK);
+        if (!(request->flags & 0x4000)) {
+            if (request->flags & 1) {
+                osJamMesg(&arg0->dmaQueue, (OSMesg) request, OS_MESG_BLOCK);
             } else {
-                osSendMesg(&arg0->unk_7C, (OSMesg) sp44, OS_MESG_BLOCK);
+                osSendMesg(&arg0->dmaQueue, (OSMesg) request, OS_MESG_BLOCK);
             }
-        } else if (s0 == 0) {
-            arg0->unk_1490 = 0;
+        } else if (numActiveTransfers == 0) {
+            arg0->isDmaBusy = FALSE;
         }
     }
 }
 
-s32 func_80002B64(Scheduler *arg0, s32 arg1, s32 arg2, s32 arg3, u16 arg4, u16 arg5, OSMesgQueue *arg6) {
-    Struct10 *s0;
+s32 sched_start_dma(Scheduler *scheduler, s32 romAddr, s32 ramAddr, s32 size, u16 batchSize, u16 flags,
+                    OSMesgQueue *completionQueue) {
+    DMARequest *request;
     s32 pad;
     s32 i;
     OSIntMask mask;
@@ -389,7 +390,7 @@ s32 func_80002B64(Scheduler *arg0, s32 arg1, s32 arg2, s32 arg3, u16 arg4, u16 a
     mask = osSetIntMask(OS_IM_NONE);
 
     for (i = 0; i < 64; i++) {
-        if (arg0->unk_E74[i] == NULL) {
+        if (scheduler->dmaRequests[i] == NULL) {
             break;
         }
     }
@@ -397,37 +398,38 @@ s32 func_80002B64(Scheduler *arg0, s32 arg1, s32 arg2, s32 arg3, u16 arg4, u16 a
         return 0;
     }
 
-    arg0->unk_E74[i] = mem_alloc(&arg0->unk_E74[i], sizeof(Struct10));
-    s0 = (Struct10 *) arg0->unk_E74[i]->data;
+    scheduler->dmaRequests[i] = mem_alloc(&scheduler->dmaRequests[i], sizeof(DMARequest));
+    request = (DMARequest *) scheduler->dmaRequests[i]->data;
 
-    s0->unk_38 = arg5;
-    s0->unk_3A = arg4 ? arg4 : arg3;
-    s0->unk_40 = arg2;
-    s0->unk_44 = arg1;
-    s0->unk_3C = arg3;
-    s0->unk_48 = i;
+    request->flags = flags;
+    request->batchSize = batchSize ? batchSize : size;
+    request->ramAddr = ramAddr;
+    request->romAddr = romAddr;
+    request->size = size;
+    request->id = i;
 
-    osCreateMesgQueue(&s0->unk_18, s0->unk_30, ARRAY_COUNT(s0->unk_30));
-    s0->unk_34 = arg6;
+    osCreateMesgQueue(&request->piCompletionQueue, request->piMesgs, ARRAY_COUNT(request->piMesgs));
+    request->requestCompletionQueue = completionQueue;
 
-    arg0->unk_1490 = 1;
-    if (s0->unk_38 & 1) {
-        osJamMesg(&arg0->unk_7C, (OSMesg) s0, OS_MESG_BLOCK);
+    scheduler->isDmaBusy = TRUE;
+    if (request->flags & 1) {
+        osJamMesg(&scheduler->dmaQueue, (OSMesg) request, OS_MESG_BLOCK);
     } else {
-        osSendMesg(&arg0->unk_7C, (OSMesg) s0, OS_MESG_BLOCK);
+        osSendMesg(&scheduler->dmaQueue, (OSMesg) request, OS_MESG_BLOCK);
     }
 
     osSetIntMask(mask);
     return 1;
 }
 
-void func_80002C94(Struct10 *arg0) {
-    osInvalDCache(arg0->unk_40, arg0->unk_3A);
-    osInvalICache(arg0->unk_40, arg0->unk_3A);
+void execute_dma_request(DMARequest *request) {
+    osInvalDCache(request->ramAddr, request->batchSize);
+    osInvalICache(request->ramAddr, request->batchSize);
 
     while (osPiGetStatus() != 0) {}
-    osPiStartDma(&arg0->unk_00, OS_MESG_PRI_NORMAL, OS_READ, arg0->unk_44, arg0->unk_40, arg0->unk_3A, &arg0->unk_18);
-    arg0->unk_38 |= 0x8000;
+    osPiStartDma(&request->ioMesg, OS_MESG_PRI_NORMAL, OS_READ, request->romAddr, request->ramAddr, request->batchSize,
+                 &request->piCompletionQueue);
+    request->flags |= 0x8000;
 }
 
 s32 func_80002D28(Scheduler *arg0) {
@@ -442,8 +444,150 @@ void func_80002D40(Scheduler *arg0) {
     arg0->unk_1494--;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80002D50.s")
+void func_80002D50(Scheduler *arg0) {
+    s32 pad[2];
+    SchedulerSub *sp6C;
+    StructD48 *s1;
+    u32 s3;
+    u32 i;
+    u8 *v1;
+    s32 s2;
+    Struct1950 *s00;
+    s32 v02;
+    u32 a0;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_800030C8.s")
+    while (TRUE) {
+        osRecvMesg(&arg0->unk_1CC, (OSMesg *) &sp6C, OS_MESG_BLOCK);
 
-#pragma GLOBAL_ASM("asm/nonmatchings/scheduler/func_80003108.s")
+        if (sp6C->unk_0C->index & 0x20000000) {
+            sp6C->unk_0C->index &= ~0x30000000;
+            arg0->unk_1494--;
+        } else if (sp6C->unk_00 & 1) {
+            s1 = (StructD48 *) arg0->unk_1374[sp6C->unk_04]->data;
+            if (s1->unk_04 < s1->unk_08) {
+                s3 = *s1->unk_0C;
+                func_8000D568(s1);
+                if (s3 < 0x80) {
+                    s2 = (*s1->unk_0C + (s3 << 4 << 4)) & 0x3FF;
+                    i = (s3 >> 2) + 2;
+                    func_8000D568(s1);
+
+                    v1 = s1->unk_10 - s2;
+                    while (i--) {
+                        *s1->unk_10++ = *v1++;
+                    }
+                } else if (s3 < 0xA0) {
+                    i = s3 & 0x1F;
+                    while (i--) {
+                        *s1->unk_10++ = *s1->unk_0C;
+                        func_8000D568(s1);
+                    }
+                } else {
+                    if (s3 < 0xE0) {
+                        i = (s3 & 0x1F) + 2;
+                        s2 = *s1->unk_0C;
+                        func_8000D568(s1);
+                    } else if (s3 < 0xFF) {
+                        i = (s3 & 0x1F) + 2;
+                        s2 = 0;
+                    } else {
+                        i = *s1->unk_0C + 2;
+                        func_8000D568(s1);
+                        s2 = 0;
+                    }
+
+                    while (i--) {
+                        *s1->unk_10++ = s2;
+                    }
+                }
+
+                osSendMesg(&arg0->unk_1CC, sp6C, OS_MESG_BLOCK);
+            } else {
+                sp6C->unk_00 = 0;
+                arg0->unk_1494--;
+                sp6C->unk_0C->index &= ~0x10000000;
+                if (sp6C->unk_08 != NULL) {
+                    osSendMesg(sp6C->unk_08, (OSMesg) 802, OS_MESG_BLOCK);
+                }
+                mem_free(arg0->unk_1374[sp6C->unk_04]);
+            }
+        } else {
+            s00 = (Struct1950 *) arg0->unk_1374[sp6C->unk_04]->data;
+            v02 = func_8000DBCC(s00);
+            if (v02 != 0x101) {
+                if (v02 == 0x100) {
+                    func_8000DC48(s00);
+                } else {
+                    *s00->unk_04++ = v02;
+                }
+                osSendMesg(&arg0->unk_1CC, sp6C, OS_MESG_BLOCK);
+            } else {
+                sp6C->unk_00 = 0;
+                arg0->unk_1494--;
+                sp6C->unk_0C->index &= ~0x10000000;
+                if (sp6C->unk_08 != NULL) {
+                    osSendMesg(sp6C->unk_08, (OSMesg) 802, OS_MESG_BLOCK);
+                }
+                mem_free(arg0->unk_1374[sp6C->unk_04]);
+            }
+        }
+    }
+}
+
+void func_800030C8(s32 *arg0) {
+    s32 mask;
+
+    mask = osSetIntMask(OS_IM_NONE);
+    *arg0 |= 0x20000000;
+    osSetIntMask(mask);
+}
+
+s32 func_80003108(Scheduler *arg0, s32 arg1, NIStruct2 *arg2, s32 arg3, void *arg4, s32 arg5, u8 arg6) {
+    s32 i;
+    s32 pad[2];
+    StructD48 *s0;
+    Struct1950 *s1;
+
+    for (i = 0; i < 64; i++) {
+        if (arg0->unk_F74[i].unk_00 == 0) {
+            break;
+        }
+    }
+    if (i == 64) {
+        return 0;
+    }
+
+    arg0->unk_F74[i].unk_00 = arg6;
+    arg0->unk_F74[i].unk_08 = arg1;
+    arg0->unk_F74[i].unk_04 = i;
+    arg0->unk_F74[i].unk_0C = arg2;
+
+    arg0->unk_F74[i].unk_0C->index &= ~0x20000000;
+    arg0->unk_F74[i].unk_0C->index |= 0x10000000;
+    arg0->unk_1494++;
+
+    if (arg6 & 1) {
+        arg0->unk_1374[i] = mem_alloc(&arg0->unk_1374[i], sizeof(StructD48));
+        s0 = (StructD48 *) arg0->unk_1374[i]->data;
+        mem_clear(s0, sizeof(StructD48));
+        func_8000D2E4(s0, arg3, arg4, arg5);
+        osCreateMesgQueue(&s0->unk_D28, s0->unk_D40, ARRAY_COUNT(s0->unk_D40));
+    } else {
+        arg0->unk_1374[i] = mem_alloc(&arg0->unk_1374[i], sizeof(Struct1950));
+        s1 = (Struct1950 *) arg0->unk_1374[i]->data;
+        mem_clear(s1, sizeof(Struct1950));
+
+        s1->unk_00 = arg3;
+        s1->unk_08 = 0xD00;
+        s1->unk_04 = arg4;
+        s1->unk_C24 = 0;
+        s1->unk_C28 = 0x80000000;
+
+        func_8000D92C(s1);
+        s1->unk_C2C = func_8000DA30(s1);
+        func_8000D744(s1);
+        osCreateMesgQueue(&s1->unk_1930, s1->unk_1948, ARRAY_COUNT(s1->unk_1948));
+    }
+
+    osSendMesg(&arg0->unk_1CC, (OSMesg) &arg0->unk_F74[i], OS_MESG_BLOCK);
+}

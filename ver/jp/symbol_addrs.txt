@@ -83,3 +83,4 @@ task_set_flags = 0x8000C7FC;
 task_run_all = 0x8000C864;
 mem_free = 0x8000C28C;
 task_set_priority = 0x8000C628;
+sched_start_dma = 0x80002B64;

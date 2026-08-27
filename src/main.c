@@ -217,7 +217,7 @@ void func_80000D1C(s32 romAddr, void *vramAddr, s32 size) {
 
     while (osPiGetStatus() != 0) {}
     osPiStartDma(&D_80037460, OS_MESG_PRI_NORMAL, OS_READ, romAddr, vramAddr, size, &D_80035F78);
-    while (sp34 == 0) {
+    while (sp34 == NULL) {
         osRecvMesg(&D_80035F78, &sp34, OS_MESG_NOBLOCK);
     }
 }
@@ -388,7 +388,7 @@ void load_overlay(Overlay *ovl) {
     OSMesg mesg = NULL;
 
     D_80044251 = TRUE;
-    func_80002B64(&gScheduler, ovl->romStart, ovl->vramAddr, ovl->romEnd - ovl->romStart, 0, 0, &D_80035F78);
+    sched_start_dma(&gScheduler, ovl->romStart, ovl->vramAddr, ovl->romEnd - ovl->romStart, 0, 0, &D_80035F78);
     osRecvMesg(&D_80035F78, &mesg, OS_MESG_BLOCK);
     D_80044251 = FALSE;
 

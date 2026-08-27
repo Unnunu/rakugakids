@@ -30,7 +30,8 @@ void func_800063E4(void);
 void func_80009C44(void);
 void mem_free(HeapChunk *);
 Gfx *func_800A7110_30810(s32, Gfx *);
-s32 func_80002B64(Scheduler *, s32, s32, s32, u16, u16, OSMesgQueue *);
+s32 sched_start_dma(Scheduler *scheduler, s32 romAddr, s32 ramAddr, s32 size, u16 batchSize, u16 flags,
+                    OSMesgQueue *completionQueue);
 s32 func_800077D4(Task *);
 s32 func_80006348(Task *);
 s32 func_80006AC4(Task *);
@@ -43,5 +44,15 @@ void func_80011738(u16 arg0);
 void func_80001200(void);
 void func_80005E8C(u8 *);
 void func_80002D40(Scheduler *arg0);
+s32 func_80003108(Scheduler *, s32, NIStruct2 *, s32, void *, s32, u8);
+void func_80002D30(Scheduler *arg0);
+void func_8000D568(StructD48 *);
+void func_8000D2E4(StructD48 *, s32, void *, s32);
+
+void func_8000D744(Struct1950 *);
+void func_8000D92C(Struct1950 *);
+s32 func_8000DA30(Struct1950 *);
+s32 func_8000DBCC(Struct1950 *);
+void func_8000DC48(Struct1950 *);
 
 #endif

@@ -18,6 +18,19 @@ typedef struct ScTask {
     /* 0x54 */ OSMesg unk_54;
 } ScTask; // size = 0x58
 
+typedef struct NIStruct2 {
+    /* 0x00 */ u32 index;
+    /* 0x04 */ u32 size;
+    /* 0x08 */ HeapChunk *unk_08;
+} NIStruct2; // size >= 0xC
+
+typedef struct SchedulerSub {
+    /* 0x00 */ s32 unk_00;
+    /* 0x04 */ s32 unk_04;
+    /* 0x08 */ OSMesgQueue *unk_08;
+    /* 0x0C */ NIStruct2 *unk_0C;
+} SchedulerSub; // size = 0x10
+
 typedef struct Scheduler {
     /* 0x0000 */ u16 unk_00;
     /* 0x0002 */ u16 unk_02;
@@ -26,11 +39,11 @@ typedef struct Scheduler {
     /* 0x0008 */ u16 unk_08;
     /* 0x000A */ s16 unk_0A;
     /* 0x000C */ OSMesgQueue audioTaskQueue;
-    /* 0x0024 */ OSMesg unk_24[8];
+    /* 0x0024 */ OSMesg audioTaskMsgs[8];
     /* 0x0044 */ OSMesgQueue gfxTaskQueue;
-    /* 0x005C */ OSMesg unk_5C[8];
-    /* 0x007C */ OSMesgQueue unk_7C;
-    /* 0x0094 */ OSMesg unk_94[64];
+    /* 0x005C */ OSMesg gfxTaskMsgs[8];
+    /* 0x007C */ OSMesgQueue dmaQueue;
+    /* 0x0094 */ OSMesg dmaMesgs[64];
     /* 0x0194 */ OSMesgQueue unk_194;
     /* 0x01AC */ OSMesg unk_1AC[8];
     /* 0x01CC */ OSMesgQueue unk_1CC;
@@ -57,8 +70,9 @@ typedef struct Scheduler {
     /* 0x0B10 */ OSThread unk_B10;
     /* 0x0CC0 */ OSThread unk_CC0;
     /* 0x0E70 */ struct ScClient *clientList;
-    /* 0x0E74 */ HeapChunk *unk_E74[0x40];
-    /* 0x0E74 */ u8 unk_F74[0x500];
+    /* 0x0E74 */ HeapChunk *dmaRequests[0x40];
+    /* 0x0F74 */ SchedulerSub unk_F74[0x40];
+    /* 0x1374 */ HeapChunk *unk_1374[0x40];
     /* 0x1474 */ ScTask *gfxTask;
     /* 0x1478 */ ScTask *audioTask;
     /* 0x147C */ ScTask *unk_147C;
@@ -66,7 +80,7 @@ typedef struct Scheduler {
     /* 0x1484 */ s32 unk_1484;
     /* 0x1488 */ s32 unk_1488;
     /* 0x148C */ s32 unk_148C;
-    /* 0x1490 */ s32 unk_1490;
+    /* 0x1490 */ s32 isDmaBusy;
     /* 0x1494 */ s32 unk_1494;
 } Scheduler; // size = 0x1498
 
@@ -207,5 +221,31 @@ typedef struct Overlay {
     /* 0x08 */ s32 vramAddr;
     /* 0x0C */ s32 (*runFunc)(s32);
 } Overlay; // size = 0x10
+
+typedef struct StructD48 {
+    /* 0x000 */ s32 unk_00;
+    /* 0x004 */ u32 unk_04;
+    /* 0x008 */ u32 unk_08;
+    /* 0x00C */ u8 *unk_0C;
+    /* 0x010 */ u8 *unk_10;
+    /* 0x014 */ char unk_14[0xD28 - 0x14];
+    /* 0xD28 */ OSMesgQueue unk_D28;
+    /* 0xD40 */ OSMesg unk_D40[1];
+    /* 0xD44 */ s32 unk_D44;
+} StructD48; // size = 0xD48
+
+typedef struct Struct1950 {
+    /* 0x0000 */ s32 unk_00;
+    /* 0x0004 */ u8 *unk_04;
+    /* 0x0008 */ s32 unk_08;
+    /* 0x000C */ char unk_0C[0xC24 - 0xC];
+    /* 0x0C24 */ s32 unk_C24;
+    /* 0x0C28 */ s32 unk_C28;
+    /* 0x0C2C */ s32 unk_C2C;
+    /* 0x0C30 */ char unk_C30[0xD00];
+    /* 0x1930 */ OSMesgQueue unk_1930;
+    /* 0x1948 */ OSMesg unk_1948[1];
+    /* 0x194C */ s32 unk_194C;
+} Struct1950; // size = 0x1950
 
 #endif
