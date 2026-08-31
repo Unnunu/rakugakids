@@ -15,12 +15,12 @@ Overlay D_80027834 = { (s32) ovl3_ROM_START, (s32) ovl3_ROM_END, (s32) ovl3_VRAM
 
 s32 func_800019E0(Task *arg0) {
     func_80001200();
-    func_80005E8C(D_80028998);
-    func_80005E8C(D_80028968);
-    func_80005E8C(D_80029CB8);
-    func_80005E8C(D_80029CC4);
-    func_80005E8C(D_800296D0);
-    func_80005E8C(D_8002994C);
+    asset_load(&D_80028998);
+    asset_load(&D_80028968);
+    asset_load(&D_80029CB8);
+    asset_load(&D_80029CC4);
+    asset_load(&D_800296D0);
+    asset_load(&D_8002994C);
     D_80044250 = 1;
     D_80044251 = 0;
     return TASK_DONE;

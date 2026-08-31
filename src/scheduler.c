@@ -460,8 +460,8 @@ void func_80002D50(Scheduler *arg0) {
     while (TRUE) {
         osRecvMesg(&arg0->unk_1CC, (OSMesg *) &sp6C, OS_MESG_BLOCK);
 
-        if (sp6C->unk_0C->tableIndex & 0x20000000) {
-            sp6C->unk_0C->tableIndex &= ~0x30000000;
+        if (sp6C->unk_0C->fileId & 0x20000000) {
+            sp6C->unk_0C->fileId &= ~0x30000000;
             arg0->unk_1494--;
         } else if (sp6C->mode & 1) {
             s1 = (StructD48 *) arg0->unk_1374[sp6C->index]->data;
@@ -506,7 +506,7 @@ void func_80002D50(Scheduler *arg0) {
             } else {
                 sp6C->mode = 0;
                 arg0->unk_1494--;
-                sp6C->unk_0C->tableIndex &= ~0x10000000;
+                sp6C->unk_0C->fileId &= ~0x10000000;
                 if (sp6C->queue != NULL) {
                     osSendMesg(sp6C->queue, (OSMesg) 802, OS_MESG_BLOCK);
                 }
@@ -525,7 +525,7 @@ void func_80002D50(Scheduler *arg0) {
             } else {
                 sp6C->mode = 0;
                 arg0->unk_1494--;
-                sp6C->unk_0C->tableIndex &= ~0x10000000;
+                sp6C->unk_0C->fileId &= ~0x10000000;
                 if (sp6C->queue != NULL) {
                     osSendMesg(sp6C->queue, (OSMesg) 802, OS_MESG_BLOCK);
                 }
@@ -543,8 +543,7 @@ void func_800030C8(s32 *arg0) {
     osSetIntMask(mask);
 }
 
-s32 func_80003108(Scheduler *arg0, OSMesgQueue *arg1, NIStruct2 *arg2, s32 romAddr, void *outBuf, s32 outBufSize,
-                  u8 mode) {
+s32 func_80003108(Scheduler *arg0, OSMesgQueue *arg1, Asset *arg2, s32 romAddr, void *outBuf, s32 outBufSize, u8 mode) {
     s32 i;
     s32 pad[2];
     StructD48 *s0;
@@ -564,8 +563,8 @@ s32 func_80003108(Scheduler *arg0, OSMesgQueue *arg1, NIStruct2 *arg2, s32 romAd
     arg0->unk_F74[i].index = i;
     arg0->unk_F74[i].unk_0C = arg2;
 
-    arg0->unk_F74[i].unk_0C->tableIndex &= ~0x20000000;
-    arg0->unk_F74[i].unk_0C->tableIndex |= 0x10000000;
+    arg0->unk_F74[i].unk_0C->fileId &= ~0x20000000;
+    arg0->unk_F74[i].unk_0C->fileId |= 0x10000000;
     arg0->unk_1494++;
 
     if (mode & 1) {

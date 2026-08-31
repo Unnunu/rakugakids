@@ -73,12 +73,13 @@ segments:
       - [0x2A20, c, scheduler]
       - [0x3EB0, c]
       - [0x5870, c]
-      - [0x6960, c]
+      - [0x6960, c, asset]
       - [0x6E00, c, camera]
       - [0x7540, c]
       - [0xCD50, c]
       - [0xCD60, c, heap]
       - [0xD0E0, c, task]
+      - [0xD530, c, huffman]
       - [0xDEA0, c, compression]
       - [0xE9D0, c]
       - [0xF490, c]
@@ -249,6 +250,8 @@ segments:
       - [0x28450, data]
       - [0x2A940, .data, camera]
       - [0x2AB30, data]
+      - [0x2AEE0, .data, huffman]
+      - [0x2AEF0, data]
 
       - [0x2E300, .data, ../ultralib/src/audio/sl]
       - [0x2E310, .data, ../ultralib/src/os/exceptasm]
@@ -300,6 +303,7 @@ segments:
       - { type: .bss, vram: 0x8002FA50, name: main }
       - { type: .bss, vram: 0x80035FC0, name: scheduler }
       - { type: bss, vram: 0x80043480, name: bss1 }
+      - { type: .bss, vram: 0x8004F700, name: huffman }
       - { type: .bss, vram: 0x8004F720, name: compression }
       - { type: bss, vram: 0x800504A0, name: bss2 }
       - { type: .bss, vram: 0x800A3500, name: ../ultralib/src/gu/rotate }

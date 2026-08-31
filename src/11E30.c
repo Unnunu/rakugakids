@@ -434,6 +434,8 @@ void func_80011CC4(void) {
 
 #pragma GLOBAL_ASM("asm/nonmatchings/11E30/func_80012D54.s")
 
+// audio functions
+
 #pragma GLOBAL_ASM("asm/nonmatchings/11E30/func_80013068.s")
 
 #pragma GLOBAL_ASM("asm/nonmatchings/11E30/func_8001310C.s")

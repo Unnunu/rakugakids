@@ -28,11 +28,11 @@ extern u8 D_3D6500[];
 
 extern u8 D_800255A0[];
 
-extern u8 D_80028998[];
-extern u8 D_80028968[];
-extern u8 D_80029CB8[];
-extern u8 D_80029CC4[];
-extern u8 D_800296D0[];
-extern u8 D_8002994C[];
+extern Asset D_80028998;
+extern Asset D_80028968;
+extern Asset D_80029CB8;
+extern Asset D_80029CC4;
+extern Asset D_800296D0;
+extern Asset D_8002994C;
 
 #endif

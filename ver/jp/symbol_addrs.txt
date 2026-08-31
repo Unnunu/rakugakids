@@ -84,3 +84,8 @@ task_run_all = 0x8000C864;
 mem_free = 0x8000C28C;
 task_set_priority = 0x8000C628;
 sched_start_dma = 0x80002B64;
+
+asset_load_async = 0x80005FA8;
+asset_unload = 0x80005E48;
+asset_load = 0x80005E8C;
+asset_load_to = 0x80005ED8;

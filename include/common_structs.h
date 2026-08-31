@@ -18,17 +18,17 @@ typedef struct ScTask {
     /* 0x54 */ OSMesg unk_54;
 } ScTask; // size = 0x58
 
-typedef struct NIStruct2 {
-    /* 0x00 */ u32 tableIndex;
+typedef struct Asset {
+    /* 0x00 */ u32 fileId;
     /* 0x04 */ u32 uncompressedSize;
-    /* 0x08 */ HeapChunk *unk_08;
-} NIStruct2; // size >= 0xC
+    /* 0x08 */ HeapChunk *data;
+} Asset; // size >= 0xC
 
 typedef struct SchedulerSub {
     /* 0x00 */ s32 mode;
     /* 0x04 */ s32 index;
     /* 0x08 */ OSMesgQueue *queue;
-    /* 0x0C */ NIStruct2 *unk_0C;
+    /* 0x0C */ Asset *unk_0C;
 } SchedulerSub; // size = 0x10
 
 typedef struct Scheduler {
@@ -198,7 +198,8 @@ typedef struct Struct4 {
     /* 0x39FF0 */ char unk_39FF0[0x757F0 - 0x39FF0];
     /* 0x757F0 */ void (*unk_757F0)(void);
     /* 0x757F4 */ Struct4Sub2 unk_757F4[0x40];
-    /* 0x75BF4 */ char unk_75BF4[0x768F8 - 0x75BF4];
+    /* 0x75BF4 */ s32 unk_75BF4;
+    /* 0x75BF8 */ u8 unk_75BF8[0xD00];
     /* 0x768F8 */ Struct4Sub4 unk_768F8[1];
     /* 0x76900 */ char unk_76900[0x76C78 - 0x76900];
     /* 0x76C78 */ s32 unk_76C78;
