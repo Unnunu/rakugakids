@@ -50,7 +50,7 @@ u8 *func_80005D60(u32 fileId, u8 *buffer) {
                 end = func_8000D2A0(romStart, buffer, romEnd - romStart);
             }
         } else {
-            func_80000D1C(romStart, buffer, romEnd - romStart);
+            dma_read(romStart, buffer, romEnd - romStart);
             end = buffer + romEnd - romStart;
         }
     }

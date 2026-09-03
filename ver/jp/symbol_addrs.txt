@@ -89,3 +89,4 @@ asset_load_async = 0x80005FA8;
 asset_unload = 0x80005E48;
 asset_load = 0x80005E8C;
 asset_load_to = 0x80005ED8;
+dma_read = 0x80000D1C;

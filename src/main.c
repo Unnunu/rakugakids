@@ -208,7 +208,7 @@ void func_80000C4C(void) {
     gDPPipeSync(D_80044258++);
 }
 
-void func_80000D1C(s32 romAddr, void *vramAddr, s32 size) {
+void dma_read(s32 romAddr, void *vramAddr, s32 size) {
     OSMesg sp34 = 0;
 
     osWritebackDCache(vramAddr, size);

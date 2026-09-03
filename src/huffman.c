@@ -24,6 +24,7 @@ void func_8000CCA8(void);
 s32 func_8000CDE4(void);
 void func_8000D208(void);
 void func_8000CBDC(void);
+void func_8000CAB0(void);
 
 u8 *func_8000C930(u32 romAddr, u8 *vramAddr) {
     func_8000C9CC(romAddr, vramAddr);
@@ -71,7 +72,7 @@ s32 func_8000CA58(void) {
 #pragma GLOBAL_ASM("asm/nonmatchings/huffman/func_8000CAB0.s")
 
 void func_8000CBDC(void) {
-    func_80000D1C(D_8004F708, D_80044254->unk_75BF8, 0xD00);
+    dma_read(D_8004F708, D_80044254->unk_75BF8, 0xD00);
     D_8004F708 += 0xD00;
     D_8004F70C = 0;
 }

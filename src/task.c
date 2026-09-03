@@ -106,7 +106,18 @@ void task_delete(TaskManager *tm, Task *task) {
     tm->numActiveTasks--;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/task/func_8000C728.s")
+void func_8000C728(TaskManager *tm) {
+    Task *task;
+
+    task = &tm->rootTask;
+    while (TRUE) {
+        task = task->next;
+        if (task->flags & TASK_FLAG_LAST) {
+            break;
+        }
+        task->flags |= TASK_FLAG_DELETE;
+    }
+}
 
 void func_8000C758(TaskManager *tm, u8 taskId) {
     Task *task;
@@ -115,9 +126,18 @@ void func_8000C758(TaskManager *tm, u8 taskId) {
     task->flags |= TASK_FLAG_DELETE;
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/task/func_8000C784.s")
+void func_8000C784(TaskManager *tm, u8 taskId) {
+    Task *task;
 
-#pragma GLOBAL_ASM("asm/nonmatchings/task/func_8000C7CC.s")
+    task = tm->tasks + taskId;
+    if (!(tm->tasks[taskId].flags & TASK_FLAG_UNPAUSABLE)) {
+        task->flags |= TASK_FLAG_PAUSED;
+    }
+}
+
+void func_8000C7CC(TaskManager *tm, u8 taskId) {
+    tm->tasks[taskId].flags &= ~TASK_FLAG_PAUSED;
+}
 
 void task_set_flags(TaskManager *tm, s32 taskId, s32 flags, s32 state) {
     Task *task;
@@ -151,6 +171,11 @@ void task_run_all(TaskManager *tm) {
     } while (!(task->flags & TASK_FLAG_LAST));
 }
 
-#pragma GLOBAL_ASM("asm/nonmatchings/task/func_8000C904.s")
+void func_8000C904(TaskManager *tm, u8 taskId, void *privData) {
+    tm->tasks[taskId].privData = privData;
+}
 
-#pragma GLOBAL_ASM("asm/nonmatchings/task/func_8000C924.s")
+void func_8000C924(TaskManager *tm, s32 (*func)(struct Task *), void *privData) {
+    tm->rootTask.func = func;
+    tm->rootTask.privData = privData;
+}

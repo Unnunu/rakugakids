@@ -22,7 +22,7 @@ s32 func_800019E0(Task *arg0) {
     asset_load(&D_800296D0);
     asset_load(&D_8002994C);
     D_80044250 = 1;
-    D_80044251 = 0;
+    D_80044251 = FALSE;
     return TASK_DONE;
 }
 
@@ -42,9 +42,9 @@ s32 func_80001AB8(Task *arg0) {
     u16 var_v0;
 
     if (D_80027810 == 0) {
-        D_80044251 = 1;
+        D_80044251 = TRUE;
         load_overlay(&D_80027824);
-        D_80044251 = 0;
+        D_80044251 = FALSE;
         osViSetSpecialFeatures(OS_VI_GAMMA_ON);
         D_80027810++;
     }
