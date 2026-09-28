@@ -107,7 +107,7 @@ void func_8000DF24(u32, void *, u32);
 
 void func_800091E8(u8, s32, s32);
 void func_80004AC4(void);
-void func_8000C924(TaskManager *, s32 (*)(Task *), s32);
+void func_8000C924(TaskManager *, s32 (*)(Task *), void *);
 s32 func_80008720(Task *);
 
 #endif
