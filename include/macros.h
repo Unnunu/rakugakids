@@ -13,4 +13,7 @@
 
 #define ALIGN_16(x) (((u32) (x) + 0xF) & ~0xF)
 
+// TODO: move to audio.h
+#define NUM_AUDIO_CHANNELS 16
+
 #endif

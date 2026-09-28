@@ -1,10 +1,5 @@
 #include "common.h"
 
-typedef struct Struct6 {
-    /* 0x00 */ s32 unk_00;
-    /* 0x04 */ Struct4Sub5 *unk_04;
-} Struct6; // size >= 8
-
 const char string1[] = "DMA WAIT in romCopy\n";
 const char string2[] = "System Wowk";
 const char string3[] = "List";
@@ -14,8 +9,6 @@ const char string6[] = "ScDmaTrans Work";
 const char string7[] = "ScLzssDecode";
 const char string8[] = "ScHuffmanDecode";
 const char string9[] = "FontHeap";
-
-extern Struct6 *D_80044244;
 
 #pragma GLOBAL_ASM("asm/nonmatchings/3EB0/func_800032B0.s")
 
@@ -41,7 +34,7 @@ void func_80004AC4(void) {
     Struct4Sub5 *v0;
     Struct4Sub5 *a0;
     Struct4Sub5 *a1;
-    CameraSettings *v1;
+    Camera *v1;
     Struct4Sub2 *a11;
     f32 fv0;
     s32 ft5;
@@ -65,7 +58,7 @@ void func_80004AC4(void) {
             v0->unk_00 = 3;
             v0->unk_04 = 0;
             v0->unk_08 = a11;
-            v0->unk_0C = 0;
+            v0->unk_0C = NULL;
             v0->unk_10 = fv0;
 
             if (D_80044254->unk_768F8[ft5].unk_00) {} // required to match

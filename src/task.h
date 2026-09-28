@@ -4,6 +4,7 @@
 #define NUM_TASKS 0xE0
 
 enum TaskFlags {
+    TASK_FLAG_4000 = 0x4000,
     TASK_FLAG_UNPAUSABLE = 0x8000,
     TASK_FLAG_10000 = 0x10000,
     TASK_FLAG_LAST = 0x20000,
@@ -17,7 +18,7 @@ struct HeapChunk;
 
 typedef struct Task {
     /* 0x00 */ s32 (*func)(struct Task *);
-    /* 0x00 */ void *privData;
+    /* 0x04 */ void *privData;
     /* 0x08 */ struct HeapChunk *unk_08;
     /* 0x0C */ s32 flags;
     /* 0x10 */ struct Task *next;

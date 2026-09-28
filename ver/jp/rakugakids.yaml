@@ -83,9 +83,10 @@ segments:
       - [0xDEA0, c, compression]
       - [0xE9D0, c]
       - [0xF490, c]
-      - [0x114F0, c, audio]
-      - [0x11E30, c]
+      - [0x114F0, c, audiomgr]
+      - [0x11E30, c, audio]
       - [0x158E0, c]
+      - [0x17720, c, audio_data]
 
       # libultra
 
@@ -252,6 +253,10 @@ segments:
       - [0x2AB30, data]
       - [0x2AEE0, .data, huffman]
       - [0x2AEF0, data]
+      - [0x2B050, .data, audio]
+      - [0x2B480, .data, 158E0]
+      - [0x2BCD0, .data, audio_data]
+      - [0x2BDD0, data]
 
       - [0x2E300, .data, ../ultralib/src/audio/sl]
       - [0x2E310, .data, ../ultralib/src/os/exceptasm]
@@ -280,7 +285,7 @@ segments:
       - [0x2FB60, rodata]
       - [0x2FC00, rodata]
       - [0x2FC40, .rodata, F490]
-      - [0x2FC80, .rodata, 11E30]
+      - [0x2FC80, .rodata, audio]
 
       - [0x2FCA0, .rodata, ../ultralib/src/os/setintmask]
       - [0x2FD20, .rodata, ../ultralib/src/gu/rotate]
@@ -306,6 +311,7 @@ segments:
       - { type: .bss, vram: 0x8004F700, name: huffman }
       - { type: .bss, vram: 0x8004F720, name: compression }
       - { type: bss, vram: 0x800504A0, name: bss2 }
+      - { type: .bss, vram: 0x80055430, name: audio }
       - { type: .bss, vram: 0x800A3500, name: ../ultralib/src/gu/rotate }
       - { type: .bss, vram: 0x800A3510, name: ../ultralib/src/io/sptask }
       - { type: .bss, vram: 0x800A3550, name: ../ultralib/src/io/leointerrupt }
@@ -472,8 +478,65 @@ segments:
       - [0xCE4F0, .rodata, CC760]
       - { type: bss, vram: 0x800A8CF0, name: bss1 }
 
-  - type: bin
-    start: 0xCE500
-    follows_vram: main
+  - [0xCE500, bin, audio/bank1]
+  - [0xD56C0, bin, audio/bank2]
+  - [0xDA990, bin, audio/bank3]
+  - [0xDF970, bin, audio/table1]
+  - [0x35FFA0, bin, audio/table2]
+  - [0x42AC30, bin, audio/table3]
+
+  - [0x4E9D70, bin, audio/seq1]
+  - [0x4E9FA0, bin, audio/seq2]
+  - [0x4EA220, bin, audio/seq3]
+  - [0x4EAC80, bin, audio/seq4]
+  - [0x4EAD90, bin, audio/seq5]
+  - [0x4EAEA0, bin, audio/seq6]
+  - [0x4EB2E0, bin, audio/seq7]
+  - [0x4EB770, bin, audio/seq8]
+  - [0x4EC4E0, bin, audio/seq9]
+  - [0x4EC630, bin, audio/seq10]
+  - [0x4EC710, bin, audio/seq11]
+  - [0x4EC930, bin, audio/seq12]
+  - [0x4ED220, bin, audio/seq13]
+  - [0x4ED330, bin, audio/seq14]
+  - [0x4ED440, bin, audio/seq15]
+  - [0x4ED800, bin, audio/seq16]
+  - [0x4EDDD0, bin, audio/seq17]
+  - [0x4EDEE0, bin, audio/seq18]
+  - [0x4EDFF0, bin, audio/seq19]
+  - [0x4EE170, bin, audio/seq20]
+  - [0x4EE6B0, bin, audio/seq21]
+  - [0x4EE820, bin, audio/seq22]
+  - [0x4EEB30, bin, audio/seq23]
+  - [0x4EEC00, bin, audio/seq24]
+  - [0x4EF2E0, bin, audio/seq25]
+  - [0x4EF900, bin, audio/seq26]
+  - [0x4EFB00, bin, audio/seq27]
+  - [0x4F0230, bin, audio/seq28]
+  - [0x4F0360, bin, audio/seq29]
+  - [0x4F0490, bin, audio/seq30]
+  - [0x4F08B0, bin, audio/seq31]
+  - [0x4F0C20, bin, audio/seq32]
+  - [0x4F1570, bin, audio/seq33]
+  - [0x4F16C0, bin, audio/seq34]
+  - [0x4F1810, bin, audio/seq35]
+  - [0x4F1CB0, bin, audio/seq36]
+  - [0x4F1FE0, bin, audio/seq37]
+  - [0x4F2610, bin, audio/seq38]
+  - [0x4F2710, bin, audio/seq39]
+  - [0x4F2810, bin, audio/seq40]
+  - [0x4F2A80, bin, audio/seq41]
+  - [0x4F2C90, bin, audio/seq42]
+  - [0x4F3400, bin, audio/seq43]
+  - [0x4F3510, bin, audio/seq44]
+  - [0x4F3620, bin, audio/seq45]
+  - [0x4F36F0, bin, audio/seq46]
+  - [0x4F3A00, bin, audio/seq47]
+  - [0x4F3BA0, bin, audio/seq48]
+  - [0x4F45A0, bin, audio/seq49]
+  - [0x4F4690, bin, audio/seq50]
+  - [0x4F4780, bin, audio/seq51]
+
+  - [0x4F47E0, bin]
 
   - [0xC00000]

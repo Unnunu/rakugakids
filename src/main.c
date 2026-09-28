@@ -117,7 +117,7 @@ void func_80000550(void *arg) {
     func_80000DEC();
     func_80006940();
     func_80004C70();
-    func_80011230();
+    aud_init();
 
     while (TRUE) {
         osRecvMesg(&D_8002FA50, (OSMesg *) &sp50, OS_MESG_BLOCK);
@@ -405,31 +405,61 @@ void func_800017F4(void) {
     D_80044254->flags &= ~0x1000;
 }
 
-#if 0
-// TODO: argument type
-s32 func_80001820(Task* arg0) {
-    Struct7 *v1;
+s32 func_80001820(Task *unused) {
+    Task *task;
+    Object *obj;
+
     if (!(D_80044254->flags & 0x1000) && (D_80044254->flags & 0x2000)) {
-        v1 = D_80044260;
+        task = &D_80044260->rootTask;
         while (TRUE) {
-            v1 = v1->unk_10;
-            if (v1->unk_0C & 0x20000) {
+            task = task->next;
+            if (task->flags & TASK_FLAG_LAST) {
                 break;
             }
-            v1->unk_0C &= ~0x84000;
+            task->flags &= ~(TASK_FLAG_4000 | TASK_FLAG_PAUSED);
         }
 
-        v1 = D_80044260;
+        task = &D_80044264->rootTask;
         while (TRUE) {
-            v1 = v1->unk_10;
-            if (v1->unk_0C & 0x20000) {
+            task = task->next;
+            if (task->flags & TASK_FLAG_LAST) {
                 break;
             }
-            v1->unk_0C &= ~0x84000;
-            v1->unk_04
+            task->flags &= ~(TASK_FLAG_4000 | TASK_FLAG_PAUSED);
+            obj = (Object *) task->privData;
+            obj->flags &= ~0x100000;
         }
-    } else {
+        D_80044254->flags &= ~0x2000;
+    } else if ((D_80044254->flags & 0x1000) && !(D_80044254->flags & 0x2000)) {
+        task = &D_80044260->rootTask;
+        while (TRUE) {
+            task = task->next;
+            if (task->flags & TASK_FLAG_LAST) {
+                break;
+            }
+            if (!(task->flags & TASK_FLAG_UNPAUSABLE)) {
+                task->flags |= TASK_FLAG_PAUSED;
+            }
+            task->flags |= TASK_FLAG_4000;
+        }
+
+        task = &D_80044264->rootTask;
+        while (TRUE) {
+            task = task->next;
+            if (task->flags & TASK_FLAG_LAST) {
+                break;
+            }
+            if (!(task->flags & TASK_FLAG_UNPAUSABLE)) {
+                task->flags |= TASK_FLAG_PAUSED;
+                obj = (Object *) task->privData;
+                obj->flags |= 0x100000;
+            }
+            task->flags |= TASK_FLAG_4000;
+        }
+        D_80044254->flags |= 0x2000;
+
+        func_8000C924(D_80044264, func_80008720, 0);
     }
+
+    return TASK_CONTINUE;
 }
-#endif
-#pragma GLOBAL_ASM("asm/nonmatchings/main/func_80001820.s")

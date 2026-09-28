@@ -1,6 +1,14 @@
 #ifndef _COMMON_STRUCTS_H
 #define _COMMON_STRUCTS_H
 
+typedef f32 Matrix4f[4][4];
+
+typedef struct Vec3f {
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+} Vec3f; // size = 0xC
+
 typedef struct HeapChunk {
     /* 0x00 */ struct HeapChunk *next;
     /* 0x04 */ void *data;
@@ -139,9 +147,9 @@ typedef struct Struct4Sub2 {
     /* 0x0C */ s32 unk_0C;
 } Struct4Sub2; // size = 0x10
 
-typedef struct CameraSettings {
+typedef struct Camera {
     /* 0x00 */ u16 id;
-    /* 0x04 */ void (*updateFunc)(struct CameraSettings *);
+    /* 0x04 */ void (*updateFunc)(struct Camera *);
     /* 0x08 */ u8 flags;
     /* 0x0C */ f32 xEye;
     /* 0x10 */ f32 yEye;
@@ -169,13 +177,29 @@ typedef struct CameraSettings {
     /* 0x68 */ s32 scisTop;
     /* 0x6C */ s32 scisRight;
     /* 0x70 */ s32 scisBottom;
-} CameraSettings; // size = 0x74
+} Camera; // size = 0x74
+
+typedef struct UnkStruct34 {
+    /* 0x00 */ s32 unk_00;
+    /* 0x04 */ s32 unk_04;
+    /* 0x08 */ s32 unk_08;
+    /* 0x0C */ s32 unk_0C;
+    /* 0x10 */ s32 unk_10;
+    /* 0x14 */ f32 unk_14;
+    /* 0x18 */ s32 unk_18;
+    /* 0x1C */ s32 unk_1C;
+    /* 0x20 */ s32 unk_20;
+    /* 0x24 */ s32 unk_24;
+    /* 0x28 */ s32 unk_28;
+    /* 0x2C */ s32 unk_2C;
+    /* 0x30 */ s32 unk_30;
+} UnkStruct34; // size = 0x34
 
 typedef struct Struct4Sub5 {
     /* 0x00 */ u32 unk_00;
     /* 0x04 */ struct Struct4Sub5 *unk_04;
-    /* 0x08 */ Struct4Sub2 *unk_08;
-    /* 0x0C */ u32 unk_0C;
+    /* 0x08 */ Struct4Sub2 *unk_08; // TODO: type
+    /* 0x0C */ UnkStruct34 *unk_0C;
     /* 0x10 */ f32 unk_10;
 } Struct4Sub5; // size = 0x14
 
@@ -183,6 +207,65 @@ typedef struct Struct4Sub4 {
     /* 0x00 */ Struct4Sub5 *unk_00;
     /* 0x04 */ s32 unk_04;
 } Struct4Sub4; // size = 0x8
+
+typedef struct UnkStructC {
+    /* 0x00 */ void (*unk_00)(Task *);
+    /* 0x04 */ void (*unk_04)(Task *);
+    /* 0x08 */ HeapChunk *unk_08[2];
+    /* 0x10 */ HeapChunk *unk_10[2];
+    /* 0x18 */ s32 unk_18;
+    /* 0x1C */ s32 unk_1C;
+    /* 0x20 */ u16 unk_20;
+    /* 0x22 */ u16 unk_22;
+    /* 0x24 */ u16 unk_24;
+    /* 0x26 */ u8 unk_26;
+    /* 0x27 */ u8 unk_27;
+} UnkStructC; // size >= 0x18
+
+typedef struct UnkStructG {
+    /* 0x000 */ u16 unk_00[0x100];
+    /* 0x200 */ u16 *unk_200;
+    /* 0x204 */ u16 unk_204;
+    /* 0x206 */ u16 unk_206;
+    /* 0x208 */ u16 unk_208;
+    /* 0x20A */ u16 unk_20A;
+    /* 0x20C */ u8 unk_20C;
+    /* 0x20D */ u8 unk_20D;
+} UnkStructG; // size = ?
+
+typedef struct Transform {
+    /* 0x000 */ Vec3f position;
+    /* 0x00C */ Vec3f rotation;
+    /* 0x018 */ Vec3f scale;
+    /* 0x024 */ Matrix4f mtxTrans;
+    /* 0x064 */ Matrix4f mtxRotateX;
+    /* 0x0A4 */ Matrix4f mtxRotateY;
+    /* 0x0E4 */ Matrix4f mtxRotateZ;
+    /* 0x124 */ Matrix4f mtxScale;
+    /* 0x164 */ Matrix4f mtxModel;
+    /* 0x1A8 */ Mtx rspMatrix;
+} Transform; // size = 0x1E8
+
+typedef struct Object {
+    /* 0x000 */ s32 flags;
+    /* 0x004 */ s32 (*unk_04)(void);
+    /* 0x008 */ struct Object *parent;
+    /* 0x00C */ HeapChunk *unk_0C;
+    /* 0x010 */ s32 unk_10;
+    /* 0x014 */ s32 unk_14;
+    /* 0x018 */ u16 *unk_18;
+    /* 0x01C */ UnkStruct34 *unk_1C;
+    /* 0x020 */ HeapChunk *unk_20;
+    /* 0x024 */ u16 unk_24[16];
+    /* 0x044 */ Vec3f position;
+    /* 0x050 */ Vec3f rotation;
+    /* 0x05C */ Vec3f scale;
+    /* 0x068 */ Transform trans[2];
+    /* 0x438 */ u8 children[4];
+    /* 0x43C */ u16 unk_43C;
+    /* 0x43E */ u8 unk_43E;
+    /* 0x43F */ u8 unk_43F;
+} Object; // size = 0x440
 
 typedef struct Struct4 {
     /* 0x00000 */ Struct5 unk_00[2];
@@ -194,14 +277,13 @@ typedef struct Struct4 {
     /* 0x39C9D */ u8 unk_39C9D;
     /* 0x39C9E */ InputData inputs[4];
     /* 0x39E1E */ char unk_39E1E[2]; // padding?
-    /* 0x39E20 */ CameraSettings cameras[4];
-    /* 0x39FF0 */ char unk_39FF0[0x757F0 - 0x39FF0];
+    /* 0x39E20 */ Camera cameras[4];
+    /* 0x39FF0 */ Object objects[0xE0];
     /* 0x757F0 */ void (*unk_757F0)(void);
     /* 0x757F4 */ Struct4Sub2 unk_757F4[0x40];
     /* 0x75BF4 */ s32 unk_75BF4;
     /* 0x75BF8 */ u8 unk_75BF8[0xD00];
-    /* 0x768F8 */ Struct4Sub4 unk_768F8[1];
-    /* 0x76900 */ char unk_76900[0x76C78 - 0x76900];
+    /* 0x768F8 */ Struct4Sub4 unk_768F8[112];
     /* 0x76C78 */ s32 unk_76C78;
     /* 0x76C7C */ u32 unk_76C7C;
     /* 0x76C80 */ s32 unk_76C80;
@@ -259,5 +341,150 @@ typedef struct HuffmanTree {
     /* 0x1948 */ OSMesg unk_1948[1];
     /* 0x194C */ s32 unk_194C;
 } HuffmanTree; // size = 0x1950
+
+typedef struct ChanState {
+    /* 0x00 */ u32 command;
+    /* 0x04 */ u8 priority;
+    /* 0x05 */ u8 startTimer;
+    /* 0x06 */ u8 flags;
+    /* 0x08 */ u8 *seqPtr;
+    /* 0x0C */ u8 bankId;
+    /* 0x0D */ u8 instrumentId;
+    /* 0x0E */ u8 isPlaying;
+    /* 0x0F */ u8 stopTimer;
+    /* 0x10 */ u8 fxAmt;
+    /* 0x14 */ ALWaveTable *wavetable;
+    /* 0x18 */ u16 tempo;
+    /* 0x1A */ u16 unk_1A;
+    /* 0x1C */ u8 unk_1C;
+    /* 0x1D */ u8 unk_1D;
+    /* 0x1E */ s16 unk_1E;
+    /* 0x20 */ u8 unk_20;
+    /* 0x21 */ u8 unk_21;
+    /* 0x22 */ u8 unk_22;
+    /* 0x23 */ u8 unk_23;
+    /* 0x24 */ u8 unk_24;
+    /* 0x25 */ u8 key;
+    /* 0x28 */ s32 pitch;
+    /* 0x2C */ s16 keyShift;
+    /* 0x2E */ s16 coarseTune;
+    /* 0x30 */ s16 fineTune;
+    /* 0x32 */ s16 pitchMod1;
+    /* 0x34 */ s16 pitchMod2;
+    /* 0x36 */ s16 vibrato;
+    /* 0x38 */ u16 pitchDrift;
+    /* 0x3A */ u16 unk_3A;
+    /* 0x3C */ u16 unk_3C;
+    /* 0x3E */ u16 unk_3E;
+    /* 0x40 */ s16 unk_40;
+    /* 0x42 */ s16 unk_42;
+    /* 0x44 */ s16 unk_44;
+    /* 0x46 */ u8 unk_46;
+    /* 0x47 */ u8 unk_47;
+    /* 0x48 */ u8 velocity;
+    /* 0x49 */ u8 envelopePhase;
+    /* 0x4A */ u16 envelopeVolume;
+    /* 0x4C */ u16 envelopeTimer;
+    /* 0x4E */ u16 attackTime;
+    /* 0x50 */ u16 decayTime;
+    /* 0x52 */ u16 sustainTime;
+    /* 0x54 */ u16 unk_54;
+    /* 0x56 */ u16 releaseTime;
+    /* 0x58 */ u16 unk_58;
+    /* 0x5A */ u8 unk_5A;
+    /* 0x5B */ u8 unk_5B;
+    /* 0x5C */ s16 unk_5C;
+    /* 0x5E */ u8 unk_5E;
+    /* 0x5F */ u8 unk_5F;
+    /* 0x60 */ u8 *unk_60;
+    /* 0x64 */ u8 unk_64;
+    /* 0x65 */ u8 unk_65;
+    /* 0x66 */ u8 unk_66;
+    /* 0x67 */ u8 unk_67;
+    /* 0x68 */ u8 *unk_68;
+    /* 0x6C */ u8 *unk_6C;
+    /* 0x70 */ u8 unk_70;
+    /* 0x74 */ u8 *unk_74;
+    /* 0x78 */ u8 *unk_78;
+    /* 0x7C */ u8 unk_7C;
+    /* 0x7D */ u8 unk_7D;
+    /* 0x7E */ u16 unk_7E;
+    /* 0x80 */ s32 unk_80;
+    /* 0x84 */ s32 unk_84;
+    /* 0x88 */ u8 unk_88;
+    /* 0x89 */ u8 unk_89;
+    /* 0x8A */ s16 unk_8A;
+    /* 0x8C */ u8 unk_8C;
+    /* 0x8D */ u8 unk_8D;
+    /* 0x8E */ u16 pitchDriftMask;
+    /* 0x90 */ u16 pitchDriftAccumulator;
+    /* 0x92 */ u8 pitchDriftSpeed;
+    /* 0x93 */ u8 unk_93;
+    /* 0x94 */ u8 unk_94;
+    /* 0x95 */ u8 unk_95;
+    /* 0x96 */ u16 unk_96;
+    /* 0x98 */ u8 unk_98;
+    /* 0x99 */ u8 unk_99;
+    /* 0x9A */ u16 unk_9A;
+    /* 0x9C */ u16 unk_9C;
+    /* 0x9E */ u8 unk_9E;
+    /* 0x9F */ u8 unk_9F;
+    /* 0xA0 */ u16 unk_A0;
+    /* 0xA2 */ s16 unk_A2[3];
+    /* 0xA8 */ s16 unk_A8[3];
+    /* 0xAE */ s16 unk_AE;
+    /* 0xB0 */ f32 pitchRatio;
+    /* 0xB4 */ s16 volume;
+    /* 0xB6 */ u16 volumeFrames;
+    /* 0xB8 */ u8 unk_B8[3];
+    /* 0xBB */ s8 unk_BB[3];
+    /* 0xBE */ u8 unk_BE;
+    /* 0xBF */ u8 unk_BF;
+    /* 0xC0 */ s16 unk_C0[3];
+    /* 0xC6 */ s16 unk_C6[3];
+    /* 0xCC */ s16 unk_CC[3];
+    /* 0xD2 */ u8 unk_D2[3];
+    /* 0xD5 */ u8 unk_D5;
+    /* 0xD6 */ u8 unk_D6;
+    /* 0xD7 */ u8 unk_D7;
+} ChanState; // size = 0xD8
+
+typedef struct AudioStruct3Sub {
+    /* 0x00 */ u16 unk_00;
+    /* 0x02 */ u8 unk_02;
+    /* 0x03 */ u8 unk_03;
+    /* 0x04 */ u8 unk_04;
+    /* 0x04 */ u8 unk_05;
+} AudioStruct3Sub; // size = 6
+
+typedef struct AudioStruct3 {
+    /* 0x00 */ u16 unk_00;
+    /* 0x04 */ AudioStruct3Sub *unk_04;
+} AudioStruct3; // size = 8
+
+typedef struct AudioStruct9 {
+    /* 0x00 */ u16 unk_00;
+    /* 0x02 */ u8 unk_02;
+    /* 0x03 */ u8 unk_03;
+    /* 0x04 */ s16 unk_04;
+} AudioStruct9; // size = 6
+
+typedef struct AudioStruct5 {
+    /* 0x00 */ u8 numTracks;
+    /* 0x01 */ u8 bankId;
+    /* 0x02 */ u8 unk_02;
+    /* 0x03 */ u8 unk_03;
+} AudioStruct5; // size = 4
+
+typedef struct AudioStruct7 {
+    /* 0x00 */ u8 numTracks;
+    /* 0x01 */ u8 bankId;
+    /* 0x04 */ u8 **tracks;
+} AudioStruct7; // size = 8
+
+typedef struct Struct6 {
+    /* 0x00 */ s32 unk_00;
+    /* 0x04 */ Struct4Sub5 *unk_04;
+} Struct6; // size >= 8
 
 #endif

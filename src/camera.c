@@ -6,7 +6,7 @@ Vp D_80029D40 = { { { (SCREEN_WIDTH / 2) << 2, (SCREEN_HEIGHT / 2) << 2, G_MAXZ 
 Vp D_80029D50 = { { { (SCREEN_WIDTH / 2) << 2, (SCREEN_HEIGHT / 4) << 2, G_MAXZ / 2, 0 },
                     { (SCREEN_WIDTH / 2) << 2, (SCREEN_HEIGHT / 4) << 2, 0, 0 } } };
 
-CameraSettings D_80029D60[] = {
+Camera D_80029D60[] = {
     {
         1,           // id
         NULL,        // updateFunc
@@ -167,7 +167,7 @@ s32 func_80006348(Task *arg0) {
 void func_800063E4(void) {
     s32 i;
     u16 perspNorm;
-    CameraSettings *s1;
+    Camera *s1;
     StructOvl2B *s2;
 
     s1 = D_80044254->cameras;
